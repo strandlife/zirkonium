@@ -21,6 +21,7 @@ class CalendarWidget(Box):
         self.add_bts()
 
     def add_bts(self):
+        " add bts to calendar widget"
         self.box1 = Box()
         bt_titles1 = range(1, 16)
         self.box2 = Box()
@@ -37,11 +38,13 @@ class CalendarWidget(Box):
         self.main_box.add(self.box2)
 
     def setdate(self, widget):
+        "set date and new color by press date bt"
         self.reset_texts()
         self.date = widget.text
         widget.style.background_color = '#2fd100'
 
     def reset_texts(self):
+        " change widget ssettings by press bt day"
         for bt in self.box1.children:
             if bt.style.background_color == '#2fd100':
                 bt.style.background_color = '#ffffff'
