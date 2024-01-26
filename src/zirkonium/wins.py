@@ -28,6 +28,7 @@ class AddTaskWindow(Window):
         self.content = self.box
 
     def get(self):
+        print('log: wins > AddTaskWindow.get')
         """
         return intered user data for add task"""
         if self.urgency_sw.value == 1:

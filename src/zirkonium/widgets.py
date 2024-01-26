@@ -1,16 +1,19 @@
+import json
+
 from toga import (Box, Window, Button, TextInput, ScrollContainer,
         Selection, Switch, ScrollContainer, DetailedList)
 from toga.style import Pack
 
 
 class CalendarWidget(Box):
-    def __init__(self):
+    def __init__(self, path):
         super(CalendarWidget, self).__init__()
         '''
         scrollarea  -> box -> 15 bt
                     -> box -> 15 bt
         press bt -> load tasks
                     '''
+        self.path = path
         self.date = ''
         self.style = Pack(flex=2)
         self.main_box = Box(style=Pack(direction='column'))
@@ -19,9 +22,11 @@ class CalendarWidget(Box):
         self.scr.content = self.main_box
         self.add(self.scr)
         self.add_bts()
+        self.set_status()
 
     def add_bts(self):
-        " add bts to calendar widget"
+        """ add bts to calendar widget"""
+        print('log: wins > CalendarWidget.add_bts')
         self.box1 = Box()
         bt_titles1 = range(1, 16)
         self.box2 = Box()
@@ -37,14 +42,30 @@ class CalendarWidget(Box):
         self.main_box.add(self.box1)
         self.main_box.add(self.box2)
 
+    def set_status(self):
+        print('log: wins > CalendarWidget.set_status')
+        with open(self.path + 'bank.json', 'r') as file:
+            data = json.load(file)
+        duty_days = [data[day][4] for day in data]
+        duty_days = list(set(duty_days))
+        print(duty_days)
+        for bt in self.box1.children:
+            if int(bt.text) in duty_days:
+                bt.style.background_color = '#f178f8'
+        for bt in self.box2.children:
+            if int(bt.text) in duty_days:
+                bt.style.background_color = '#f178f8'
+
     def setdate(self, widget):
-        "set date and new color by press date bt"
+        print('log: wins > CalendarWidget.setdata')
+        """set date and new color by press date bt"""
         self.reset_texts()
         self.date = widget.text
         widget.style.background_color = '#2fd100'
 
     def reset_texts(self):
-        " change widget ssettings by press bt day"
+        print('log: wins > CalendarWidget.reset_text')
+        """ change widget settings by press bt day"""
         for bt in self.box1.children:
             if bt.style.background_color == '#2fd100':
                 bt.style.background_color = '#ffffff'

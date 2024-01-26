@@ -21,22 +21,22 @@ class Zirkonium(App):
         except FileNotFoundError:
             with open(self.path + 'bank.json', 'w') as file:
                 json.dump({}, file, indent=3)
-        add_Task_bt = Button('افزودن', style=Pack(padding=(0,5,0,5)), on_press=self.open_add_task_window)
-        menubar = Box(style=Pack(padding=(0,0,0,0)))
+        add_Task_bt = Button('افزودن', style=Pack(padding=(0, 5, 0, 5)), on_press=self.open_add_task_window)
+        menubar = Box(style=Pack(padding=(0, 0, 0, 0)))
 
         arranger_task_bt = Button('رده بندی', on_press= self.arranger)
         menubar.add(add_Task_bt)
         menubar.add(arranger_task_bt)
 
-        self.calendar = CalendarWidget()
+        self.calendar = CalendarWidget(self.path)
         
-        scr = ScrollContainer(style=Pack(height=500, padding=(5,5,5,5)))
+        scr = ScrollContainer(style=Pack(height=500, padding=(5, 5, 5, 5)))
         self.tasks_list = Table(headings=['علامت', 'عنوان', 'ارزش', 'وضعیت'], 
                                 style=Pack(direction="column"), 
                                 missing_value='', on_select=self.open_oked_window)
         scr.content = self.tasks_list
 
-        main_box = Box(style=Pack(direction='column', alignment='center', padding=(5,5,5,5)))
+        main_box = Box(style=Pack(direction='column', alignment='center', padding=(5, 5, 5, 5)))
         main_box.add(self.calendar)
         main_box.add(menubar)
         main_box.add(scr)
@@ -48,6 +48,7 @@ class Zirkonium(App):
         self.upload()
 
     def arranger(self, widget):
+        print('log: app > arranger')
         with open(self.path + 'bank.json', 'r') as f:
             bank = json.load(f)
         for it in bank:
@@ -57,7 +58,7 @@ class Zirkonium(App):
         #    json.dump(newbank, f, indent=2)
 
     def add_task(self, widget):
-        print('add bt')
+        print('log: app > add bt')
         data = self.win.get()
         self.win.close()
         value = data[1] + data[2]
@@ -71,8 +72,10 @@ class Zirkonium(App):
         with open(self.path + 'bank.json', 'w') as f:
             json.dump(newbank, f, indent=2)
         self.upload()
+        self.calendar.set_status()
 
     def upload(self):
+        print('log: app > upload')
         self.tasks_list.data.clear()
         with open(self.path + 'bank.json', 'r') as f:
             newbank = json.load(f)
@@ -82,6 +85,7 @@ class Zirkonium(App):
 
     def oked_task(self, widget):
         # change task to oked
+        print('log: app > oked_task')
         with open(self.path + 'bank.json', 'r') as f:
             newbank = json.load(f)
         newbank[self.task_name][3] = 'انجام شده'
@@ -92,6 +96,7 @@ class Zirkonium(App):
 
     def delete_task(self, widget):
         # change task to oked
+        print('log: app > delete_task')
         with open(self.path + 'bank.json', 'r') as f:
             newbank = json.load(f)
         newbank.pop(self.task_name)
@@ -102,6 +107,7 @@ class Zirkonium(App):
 
     def cancel_task(self, widget):
         # change task to oked
+        print('log: app > cancel_task')
         with open(self.path + 'bank.json', 'r') as f:
             newbank = json.load(f)
         newbank[self.task_name][3] = 'لغو شده'
@@ -114,6 +120,7 @@ class Zirkonium(App):
         self.ok_win.close()
 
     def open_add_task_window(self, widget):
+        print('log: app > open_add_task_window')
         self.date = int(self.calendar.date)
         self.win = AddTaskWindow(self.date)
         self.win.position = (self.main_window.size[0]/2, self.main_window.size[1]/2)
@@ -122,6 +129,7 @@ class Zirkonium(App):
         self.win.show()
 
     def open_oked_window(self, widget, row):
+        print('log: app > open_oked_window')
         self.ok_win = OkTaskWindow()
         self.ok_win.position = (self.main_window.size[0]/2, self.main_window.size[1]/2)
         self.ok_win.oked_bt.on_press = self.oked_task
