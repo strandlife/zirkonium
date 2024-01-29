@@ -1,11 +1,13 @@
 """
 My first application
 """
+import json
+import os
+
 from toga import (App, Box, MainWindow, Table, Button, Label, ScrollContainer)
 from toga.style import Pack
-from zirkonium.wins import AddTaskWindow, OkTaskWindow
-import os, json
 from zirkonium.widgets import CalendarWidget
+from zirkonium.wins import AddTaskWindow, OkTaskWindow
 
 
 class Zirkonium(App):
@@ -24,16 +26,19 @@ class Zirkonium(App):
         add_Task_bt = Button('افزودن', style=Pack(padding=(0, 5, 0, 5)), on_press=self.open_add_task_window)
         menubar = Box(style=Pack(padding=(0, 0, 0, 0)))
 
-        arranger_task_bt = Button('رده بندی', on_press= self.arranger)
+        arranger_task_bt = Button('رده بندی', on_press=self.arranger)
         menubar.add(add_Task_bt)
         menubar.add(arranger_task_bt)
-
-        self.calendar = CalendarWidget(self.path)
-        
-        scr = ScrollContainer(style=Pack(height=500, padding=(5, 5, 5, 5)))
         self.tasks_list = Table(headings=['علامت', 'عنوان', 'ارزش', 'وضعیت'], 
                                 style=Pack(direction="column"), 
                                 missing_value='', on_select=self.open_oked_window)
+        self.calendar = CalendarWidget(self.path)
+        for bt in self.calendar.box1.children:
+            bt.on_press = self.load_day_tasks
+        for bt in self.calendar.box2.children:
+            bt.on_press = self.load_day_tasks
+        scr = ScrollContainer(style=Pack(height=500, padding=(5, 5, 5, 5)))
+
         scr.content = self.tasks_list
 
         main_box = Box(style=Pack(direction='column', alignment='center', padding=(5, 5, 5, 5)))
@@ -46,6 +51,10 @@ class Zirkonium(App):
         self.main_window.content = main_box
         self.main_window.show()
         self.upload()
+
+    def load_day_tasks(self, ww):
+        #self.calendar.setdate()
+        self.upload_day(ww.text)
 
     def arranger(self, widget):
         print('log: app > arranger')
@@ -82,6 +91,18 @@ class Zirkonium(App):
         for itm in newbank:
             cd = newbank[itm]
             self.tasks_list.data.append(cd[0], cd[1], cd[2], cd[3])
+
+    def upload_day(self, number):
+        print('log: app > upload day')
+        self.tasks_list.data.clear()
+        with open(self.path + 'bank.json', 'r') as f:
+            newbank = json.load(f)
+        for itm in newbank:
+            selected_itm = newbank[itm]
+            print(type(selected_itm[4]) , type(number))
+            if selected_itm[4] == int(number):
+                print(itm[4])
+                self.tasks_list.data.append(selected_itm[0], selected_itm[1], selected_itm[2], selected_itm[3])
 
     def oked_task(self, widget):
         # change task to oked

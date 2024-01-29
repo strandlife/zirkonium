@@ -12,7 +12,7 @@ class CalendarWidget(Box):
         scrollarea  -> box -> 15 bt
                     -> box -> 15 bt
         press bt -> load tasks
-                    '''
+        '''
         self.path = path
         self.date = ''
         self.style = Pack(flex=2)
@@ -33,11 +33,9 @@ class CalendarWidget(Box):
         bt_titles2 = range(16, 31)
         for title in bt_titles1:
             bt = Button(text=title, style=Pack(width=40))
-            bt.on_press = self.setdate
             self.box1.add(bt)
         for title in bt_titles2:
             bt = Button(text=title, style=Pack(width=40))
-            bt.on_press = self.setdate
             self.box2.add(bt)
         self.main_box.add(self.box1)
         self.main_box.add(self.box2)
@@ -48,27 +46,31 @@ class CalendarWidget(Box):
             data = json.load(file)
         duty_days = [data[day][4] for day in data]
         duty_days = list(set(duty_days))
-        print(duty_days)
         for bt in self.box1.children:
             if int(bt.text) in duty_days:
-                bt.style.background_color = '#f178f8'
+                bt.style.background_color = '#f178f8'  # pink
         for bt in self.box2.children:
             if int(bt.text) in duty_days:
-                bt.style.background_color = '#f178f8'
+                bt.style.background_color = '#f178f8'  # pink
 
     def setdate(self, widget):
         print('log: wins > CalendarWidget.setdata')
-        """set date and new color by press date bt"""
+        """
+        set date and new color by press date bt
+        """
+        self.set_status()
         self.reset_texts()
         self.date = widget.text
-        widget.style.background_color = '#2fd100'
+        widget.style.background_color = '#2fd100'  # green
 
     def reset_texts(self):
         print('log: wins > CalendarWidget.reset_text')
-        """ change widget settings by press bt day"""
+        """
+        change widget settings by press bt day
+        """
         for bt in self.box1.children:
-            if bt.style.background_color == '#2fd100':
-                bt.style.background_color = '#ffffff'
+            if bt.style.background_color == '#2fd100':  # green
+                bt.style.background_color = '#ffffff'   # white
         for bt in self.box2.children:
-            if bt.style.background_color == '#2fd100':
-                bt.style.background_color = '#ffffff'
+            if bt.style.background_color == '#2fd100':  # green
+                bt.style.background_color = '#ffffff'   # white
