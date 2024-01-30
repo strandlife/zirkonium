@@ -3,6 +3,7 @@ import json
 from toga import (Box, Window, Button, TextInput, ScrollContainer,
         Selection, Switch, ScrollContainer, DetailedList)
 from toga.style import Pack
+from toga.colors import rgb
 
 
 class CalendarWidget(Box):
@@ -69,8 +70,8 @@ class CalendarWidget(Box):
         change widget settings by press bt day
         """
         for bt in self.box1.children:
-            if bt.style.background_color == '#2fd100':  # green
+            if bt.style.background_color == rgb(47, 209, 0):  # green
                 bt.style.background_color = '#ffffff'   # white
         for bt in self.box2.children:
-            if bt.style.background_color == '#2fd100':  # green
+            if bt.style.background_color == rgb(47, 209, 0):  # green
                 bt.style.background_color = '#ffffff'   # white

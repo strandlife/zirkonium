@@ -17,6 +17,7 @@ class Zirkonium(App):
         create a new database by json format
         """
         self.path = os.path.realpath(__file__)[:-6]
+        self.date_active = None
         try:
             with open(self.path + 'bank.json', 'r') as file:
                 json.load(file)
@@ -30,8 +31,10 @@ class Zirkonium(App):
         menubar.add(add_Task_bt)
         menubar.add(arranger_task_bt)
         self.tasks_list = Table(headings=['علامت', 'عنوان', 'ارزش', 'وضعیت'], 
-                                style=Pack(direction="column"), 
-                                missing_value='', on_select=self.open_oked_window)
+                                style=Pack(direction="column"),
+                                multiple_select=True,
+                                missing_value='',
+                                on_select=self.open_oked_window)
         self.calendar = CalendarWidget(self.path)
         for bt in self.calendar.box1.children:
             bt.on_press = self.load_day_tasks
@@ -52,9 +55,10 @@ class Zirkonium(App):
         self.main_window.show()
         self.upload()
 
-    def load_day_tasks(self, ww):
-        #self.calendar.setdate()
-        self.upload_day(ww.text)
+    def load_day_tasks(self, widget):
+        self.calendar.setdate(widget)
+        self.date_active = int(widget.text)
+        self.upload_day(self.date_active)
 
     def arranger(self, widget):
         print('log: app > arranger')
@@ -62,9 +66,6 @@ class Zirkonium(App):
             bank = json.load(f)
         for it in bank:
             print(it)
-        
-        #with open(self.path + 'bank.json', 'w') as f:
-        #    json.dump(newbank, f, indent=2)
 
     def add_task(self, widget):
         print('log: app > add bt')
@@ -80,7 +81,7 @@ class Zirkonium(App):
         newbank[data[0]] = item
         with open(self.path + 'bank.json', 'w') as f:
             json.dump(newbank, f, indent=2)
-        self.upload()
+        self.upload_day(self.date_active)
         self.calendar.set_status()
 
     def upload(self):
@@ -99,9 +100,7 @@ class Zirkonium(App):
             newbank = json.load(f)
         for itm in newbank:
             selected_itm = newbank[itm]
-            print(type(selected_itm[4]) , type(number))
-            if selected_itm[4] == int(number):
-                print(itm[4])
+            if selected_itm[4] == number:
                 self.tasks_list.data.append(selected_itm[0], selected_itm[1], selected_itm[2], selected_itm[3])
 
     def oked_task(self, widget):
@@ -113,7 +112,7 @@ class Zirkonium(App):
         with open(self.path + 'bank.json', 'w') as f:
             json.dump(newbank, f, indent=2)
         self.ok_win.close()
-        self.upload()
+        self.upload_day(self.date_active)
 
     def delete_task(self, widget):
         # change task to oked
@@ -124,7 +123,8 @@ class Zirkonium(App):
         with open(self.path + 'bank.json', 'w') as f:
             json.dump(newbank, f, indent=2)
         self.ok_win.close()
-        self.upload()
+        self.upload_day(self.date_active)
+        self.calendar.set_status()
 
     def cancel_task(self, widget):
         # change task to oked
@@ -135,7 +135,7 @@ class Zirkonium(App):
         with open(self.path + 'bank.json', 'w') as f:
             json.dump(newbank, f, indent=2)
         self.ok_win.close()
-        self.upload()
+        self.upload_day(self.date_active)
 
     def close_task(self, widget):
         self.ok_win.close()
@@ -152,13 +152,14 @@ class Zirkonium(App):
     def open_oked_window(self, widget, row):
         print('log: app > open_oked_window')
         self.ok_win = OkTaskWindow()
+        self.task_name = row.__dict__['عنوان']
+        self.active_row = row
         self.ok_win.position = (self.main_window.size[0]/2, self.main_window.size[1]/2)
         self.ok_win.oked_bt.on_press = self.oked_task
         self.ok_win.delete_bt.on_press = self.delete_task
         self.ok_win.cancel_bt.on_press = self.cancel_task
         self.ok_win.close_bt.on_press = self.close_task
         self.windows.add(self.ok_win)
-        self.task_name = row.__dict__['عنوان']
         self.ok_win.show()
 
 

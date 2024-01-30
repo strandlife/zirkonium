@@ -65,4 +65,5 @@ class OkTaskWindow(Window):
         self.content = self.box
 
     def close_handler(self, window, **kwargs):
+        print('close OkTaskWindow')
         return True
