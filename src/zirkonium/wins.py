@@ -5,6 +5,9 @@ from toga.style import Pack
 
 class AddTaskWindow(Window):
     def __init__(self, date):
+        """
+        a window for get new task data from user
+        """
         super(AddTaskWindow, self).__init__()
         self.on_close = self.close_handler
         self.title = "افزودن وظیفه جدید"
@@ -25,6 +28,9 @@ class AddTaskWindow(Window):
         self.content = self.box
 
     def get(self):
+        print('log: wins > AddTaskWindow.get')
+        """
+        return intered user data for add task"""
         if self.urgency_sw.value == 1:
             ur = 2
         else:
@@ -32,12 +38,18 @@ class AddTaskWindow(Window):
         return [self.task_name_te.value, ur, self.importancs_sw.value, self.date_sp.value]
 
     def close_handler(self, window, **kwargs):
+        """
+        close window
+        """
         return True
 
 
 class OkTaskWindow(Window):
     def __init__(self):
         super(OkTaskWindow, self).__init__()
+        """
+        A window to specify the result of a task
+        """
         self.on_close = self.close_handler
         self.title = "Ok Task Window"
         self.size = (250, 180)
@@ -53,4 +65,5 @@ class OkTaskWindow(Window):
         self.content = self.box
 
     def close_handler(self, window, **kwargs):
+        print('close OkTaskWindow')
         return True
