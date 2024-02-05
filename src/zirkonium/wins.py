@@ -1,5 +1,5 @@
 from toga import (Box, Window, Button, TextInput, NumberInput,
-        Selection, Switch, ScrollContainer, DetailedList)
+        Selection, Switch, Label, DetailedList)
 from toga.style import Pack
 
 
@@ -64,6 +64,39 @@ class OkTaskWindow(Window):
         self.box.add(self.close_bt)
         self.content = self.box
 
+    def close_handler(self, window, **kwargs):
+        print('close OkTaskWindow')
+        return True
+
+
+class AddYearWindow(Window):
+    def __init__(self):
+        super(AddYearWindow, self).__init__()
+        """
+        A window to specify the result of a task
+        """
+        self.on_close = self.close_handler
+        self.title = "add year Window"
+        self.size = (250, 180)
+        self.box = Box(style=Pack(padding=(10, 10, 10, 10), direction='column'))
+        start_day_lb = Label('روز اول سال')
+        self.start_day_se = Selection(items=['شنبه', 'یکشنبه','دوشنبه',
+                                            'سه شنبه', 'چهارشنبه', 'پنج شنبه', 'جمعه'],
+                                            on_select=self.set_one_day)
+        self.ok_bt = Button('تایید', style=Pack(padding=(10, 10, 10, 10)))
+        self.box.add(start_day_lb, self.start_day_se, self.ok_bt)
+        self.content = self.box
+
+    def set_one_day(self):
+        print('calendar_win')
+        self.week_days = {1:'شنبه', 2:'یکشنبه', 3:'دوشنبه',
+                        4:'سه شنبه', 5:'چهارشنبه', 6:'پنج شنبه', 7:'جمعه'}
+        for num_mnt in self.week_days:
+            print(self.week_days[num_mnt], self.start_day_se.value)
+            if self.start_day_se.value == self.week_days[num_mnt]:
+                print(num_mnt)
+                return num_mnt
+    
     def close_handler(self, window, **kwargs):
         print('close OkTaskWindow')
         return True

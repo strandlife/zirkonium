@@ -7,7 +7,7 @@ import os
 from toga import (App, Box, MainWindow, Table, Button, Label, ScrollContainer)
 from toga.style import Pack
 from zirkonium.widgets import CalendarWidget
-from zirkonium.wins import AddTaskWindow, OkTaskWindow
+from zirkonium.wins import AddTaskWindow, OkTaskWindow, AddYearWindow
 
 
 class Zirkonium(App):
@@ -18,35 +18,68 @@ class Zirkonium(App):
         """
         self.path = os.path.realpath(__file__)[:-6]
         self.date_active = None
-        try:
-            with open(self.path + 'bank.json', 'r') as file:
-                json.load(file)
-        except FileNotFoundError:
-            with open(self.path + 'bank.json', 'w') as file:
-                json.dump({}, file, indent=3)
+        self.mounth_active = 1
+        
         add_Task_bt = Button('افزودن', style=Pack(padding=(0, 5, 0, 5)), on_press=self.open_add_task_window)
-        menubar = Box(style=Pack(padding=(0, 0, 0, 0)))
+        self.menubar = Box(style=Pack(padding=(0, 0, 0, 0)))
 
         arranger_task_bt = Button('رده بندی', on_press=self.arranger)
-        menubar.add(add_Task_bt)
-        menubar.add(arranger_task_bt)
-        self.tasks_list = Table(headings=['علامت', 'عنوان', 'ارزش', 'وضعیت'], 
+        self.menubar.add(add_Task_bt)
+        self.menubar.add(arranger_task_bt)
+        self.tasks_list = Table(headings=['علامت', 'عنوان', 'ارزش', 'وضعیت'],
                                 style=Pack(direction="column"),
                                 multiple_select=True,
                                 missing_value='',
                                 on_select=self.open_oked_window)
-        self.calendar = CalendarWidget(self.path)
+        self.calendar = CalendarWidget(self.path, self.mounth_active)
+        try:
+            with open(self.path + 'year.json', 'r') as file:
+                json.load(file)
+            self.show()
+        except FileNotFoundError:
+            self.upload_calendar()
+
+    def upload_calendar(self):
+        with open(self.path + 'year.json', 'w') as file:
+            json.dump({}, file, indent=3)
+        self.one_day_win = AddYearWindow()
+        self.one_day_win.ok_bt.on_press = self.make_year
+        self.windows.add(self.one_day_win)
+        self.one_day_win.show()
         for bt in self.calendar.box1.children:
             bt.on_press = self.load_day_tasks
         for bt in self.calendar.box2.children:
             bt.on_press = self.load_day_tasks
-        scr = ScrollContainer(style=Pack(height=500, padding=(5, 5, 5, 5)))
+        for bt in self.calendar.box3.children:
+            bt.on_press = self.load_day_tasks
+        for bt in self.calendar.box4.children:
+            bt.on_press = self.load_day_tasks
+        for bt in self.calendar.box5.children:
+            bt.on_press = self.load_day_tasks
+        for bt in self.calendar.box6.children:
+            bt.on_press = self.load_day_tasks
 
+    def make_year(self, widget):
+        self.calendar.set_one_day(self.one_day_win.set_one_day())
+        self.calendar.make_year()
+        self.calendar.add_bts()
+        if self.calendar.one_day != None:
+            try:
+                with open(self.path + 'bank.json', 'r') as file:
+                    json.load(file)
+            except FileNotFoundError:
+                with open(self.path + 'bank.json', 'w') as file:
+                    json.dump({}, file, indent=3)
+            self.one_day_win.close()
+            self.show()
+
+    def show(self):
+        scr = ScrollContainer(style=Pack(height=500, padding=(5, 5, 5, 5)))
         scr.content = self.tasks_list
 
         main_box = Box(style=Pack(direction='column', alignment='center', padding=(5, 5, 5, 5)))
         main_box.add(self.calendar)
-        main_box.add(menubar)
+        main_box.add(self.menubar)
         main_box.add(scr)
         main_box.add(Label(os.path.realpath(__file__)[:-6]))
 
