@@ -22,8 +22,9 @@ class CalendarWidget(Box):
         self.mounths_list = {1:'فروردین', 2:'اردیبهشت', 3:'خرداد', 4:'تیر',
                             5:'مرداد', 6:'شهریور', 7:'مهر', 8:'آبان', 9:'آذر',
                             10:'دی', 11:'بهمن', 12:'اسفند'}
-        self.week_days = {1:'شنبه', 2:'یکشنبه', 3:'دوشنبه',
-                        4:'سه شنبه', 5:'چهارشنبه', 6:'پنج شنبه', 7:'جمعه'}
+        
+        self.week_days = {1: 'شنبه', 2: '  یک  ', 3: '  دو  ', 4:'  سه  ', 5: ' چهار ', 6: ' پنج ', 7: 'جمعه'}
+        
         self.active_mounth = mounth
         self.one_day = None
         self.style = Pack(flex=2, direction='column')
@@ -44,8 +45,8 @@ class CalendarWidget(Box):
         self.one_day_in = NumberInput()
         
         week_lbs_box = Box()
-        for title in self.week_days.keys():
-            lb = Label(title, style=Pack(padding=((5,5,5,5))))
+        for ind in self.week_days.keys():
+            lb = Label(self.week_days[ind], style=Pack(padding=((5,5,5,5))))
             week_lbs_box.add(lb)
         self.add(toolbar)
         self.add(week_lbs_box)
