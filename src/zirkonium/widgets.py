@@ -5,6 +5,7 @@ from zirkonium.wins import AddYearWindow
 from toga import (Box, Window, Button, TextInput, ScrollContainer,
         Label, NumberInput, Switch, ScrollContainer, DetailedList)
 from toga.style import Pack
+from toga.style.pack import RIGHT, LEFT, CENTER
 from toga.colors import rgb
 
 
@@ -19,12 +20,13 @@ class CalendarWidget(Box):
         self.style = Pack(alignment='center')
         self.path = path
         self.date = ''
-        self.mounths_list = {1:'فروردین', 2:'اردیبهشت', 3:'خرداد', 4:'تیر',
-                            5:'مرداد', 6:'شهریور', 7:'مهر', 8:'آبان', 9:'آذر',
-                            10:'دی', 11:'بهمن', 12:'اسفند'}
-        
-        self.week_days = {1: 'شنبه', 2: '  یک  ', 3: '  دو  ', 4:'  سه  ', 5: ' چهار ', 6: ' پنج ', 7: 'جمعه'}
-        
+        self.mounths_list = {1: 'فروردین', 2: 'اردیبهشت', 3: 'خرداد', 4:'تیر',
+                            5: 'مرداد', 6: 'شهریور', 7: 'مهر', 8: 'آبان', 9: 'آذر',
+                            10: 'دی', 11: 'بهمن', 12: 'اسفند'}
+
+        self.week_days = {1: 'شنبه', 2: '  یک  ', 3: '  دو  ', 4: '  سه  ',
+                            5: ' چهار ', 6: ' پنج ', 7: 'جمعه'}
+
         self.active_mounth = mounth
         self.one_day = None
         self.style = Pack(flex=2, direction='column')
@@ -39,14 +41,14 @@ class CalendarWidget(Box):
         prev_mounth.on_press = self.prev_mounth
         next_year = Button('<')
         prev_year = Button('>')
-        self.info_lb = Label('1390 - فروردین')
+        self.info_lb = Label('1390 - فروردین', style=Pack(width=170, text_align='center'))
         toolbar.add(prev_year, prev_mounth, self.info_lb, next_mounth, next_year)
 
         self.one_day_in = NumberInput()
-        
+
         week_lbs_box = Box()
         for ind in self.week_days.keys():
-            lb = Label(self.week_days[ind], style=Pack(padding=((5,5,5,5))))
+            lb = Label(self.week_days[ind], style=Pack(padding=((5, 5, 5, 5))))
             week_lbs_box.add(lb)
         self.add(toolbar)
         self.add(week_lbs_box)
@@ -64,8 +66,9 @@ class CalendarWidget(Box):
         year = {}
         num = self.one_day  # num = week day number
         for mounth in self.mounths_list:
+            print('mounth:', mounth)
             days = {}
-            if mounth in range(0,7):
+            if mounth in range(0, 7):
                 for nm in range(1, 32):
                     if num < 7:
                         days[nm] = num
@@ -74,24 +77,22 @@ class CalendarWidget(Box):
                         days[nm] = num
                         num = 1
                 year[mounth] = days
-                print('>',days)
                 num = days[list(days.keys())[-1]] + 1
+                print('>', days)
             if mounth in range(7, 13):
+                print(num)
                 for nm in range(1, 31):
+                    if num == 8:
+                        num = 1
                     if num < 7:
                         days[nm] = num
                         num += 1
                     elif num == 7:
                         days[nm] = num
                         num = 1
-                    elif num == 8:
-                        num = 1
                 year[mounth] = days
-                print('>>',days)
+                print('>>', days)
                 num = days[list(days.keys())[-1]] + 1
-        with open(self.path + 'year.json', 'r') as file:
-                json.load(file)
-        file = year
         with open(self.path + 'year.json', 'w') as file:
             json.dump(year, file, indent=3)
 
@@ -102,7 +103,7 @@ class CalendarWidget(Box):
         self.add_bts()
 
     def prev_mounth(self, widget):
-        current_index = self.active_mounth -1
+        current_index = self.active_mounth - 1
         self.active_mounth = list(self.mounths_list.keys())[current_index - 1]
         self.info_lb.text = self.mounths_list[self.active_mounth] + '1390'
         self.add_bts()
@@ -110,230 +111,112 @@ class CalendarWidget(Box):
     def add_bts(self):
         """ add bts to calendar widget"""
         print('log: wins > CalendarWidget.add_bts')
-        print('active ',self.active_mounth)
         with open(self.path + 'year.json', 'r') as file:
             data = json.load(file)
-        self.main_box.clear()
+        
         bts = data[str(self.active_mounth)]
-        self.box1 = Box()
-        self.box2 = Box()
-        self.box3 = Box()
-        self.box4 = Box()
-        self.box5 = Box()
-        self.box6 = Box()
+        box1 = Box()
+        box2 = Box()
+        box3 = Box()
+        box4 = Box()
+        box5 = Box()
+        box6 = Box()
         
+        for bx in self.main_box.children:
+            self.main_box.remove(bx)
+        for bx in self.main_box.children:
+            self.main_box.remove(bx)
+        for bx in self.main_box.children:
+            self.main_box.remove(bx)
+        print(self.main_box.children)
+        self.main_box.add(box1)
+        self.main_box.add(box2)
+        self.main_box.add(box3)
+        self.main_box.add(box4)
+        self.main_box.add(box5)
+        self.main_box.add(box6)
+
         days = list(bts.keys())
-        print(bts[days[0]])
-        if bts[days[0]] == 2:
-            numbering = 0
-            for dd in range(31, 32):
+        x = bts[days[0]]
+        print('x:', x)
+        if len(days) == 31:
+            if x == 2:
+                pre_list = [31]
+                numbering = len(pre_list)
+                box1.style.padding_left = 40 * numbering
+            elif x == 3:
+                pre_list = [30, 31]
+                numbering = len(pre_list)
+                box1.style.padding_left = 40 * numbering
+            elif x == 4:
+                pre_list = [29, 30, 31]
+                numbering = len(pre_list)
+                box1.style.padding_left = 40 * numbering
+            elif x == 5:
+                pre_list = [28, 29, 30, 31]
+                numbering = len(pre_list)
+                box1.style.padding_left = 40 * numbering
+            elif x == 6:
+                pre_list = [27, 28, 29, 30, 31]
+                numbering = len(pre_list)
+                box1.style.padding_left = 40 * numbering
+            elif x == 7:
+                pre_list = [26, 27, 28, 29, 30, 31]
+                numbering = len(pre_list)
+                box1.style.padding_left = 40 * numbering
+        elif len(days) == 30:
+            if x == 2:
+                pre_list = [30]
+                numbering = len(pre_list)
+                box1.style.padding_left = 40 * numbering
+            elif x == 3:
+                pre_list = [29, 30]
+                numbering = len(pre_list)
+                box1.style.padding_left = 40 * numbering
+            elif x == 4:
+                pre_list = [28, 29, 30]
+                numbering = len(pre_list)
+                box1.style.padding_left = 40 * numbering
+            elif x == 5:
+                pre_list = [27, 28, 29, 30]
+                numbering = len(pre_list)
+                box1.style.padding_left = 40 * numbering
+            elif x == 6:
+                pre_list = [26, 27, 28, 29, 30]
+                box1.style.padding_left = 40 * numbering
+                numbering = len(pre_list)
+            elif x == 7:
+                pre_list = [25, 26, 27, 28, 29, 30]
+                numbering = len(pre_list)
+                box1.style.padding_left = 40 * numbering
+
+        numbering = x
+        for dd in days:
+            #print(dd, numbering)
+            if numbering < 8:
                 bt = Button(text=dd, style=Pack(width=40))
-                bt.enabled = False
-                self.box1.add(bt)
+                box1.add(bt)
                 numbering += 1
-            for dd in days:
-                if numbering < 7:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box1.add(bt)
-                    numbering += 1
-                elif 14 > numbering >= 7:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box2.add(bt)
-                    numbering += 1
-                elif 21 > numbering >= 14:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box3.add(bt)
-                    numbering += 1
-                elif 28 > numbering >= 21:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box4.add(bt)
-                    numbering += 1
-                elif 33 > numbering >= 28:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box5.add(bt)
-            for dd in range(1, 3):
+            elif 15 > numbering >= 8:
                 bt = Button(text=dd, style=Pack(width=40))
-                bt.enabled = False
-                self.box5.add(bt)
-        
-        if bts[days[0]] == 3:
-            numbering = 0
-            for dd in range(30, 32):
-                bt = Button(text=dd, style=Pack(width=40))
-                bt.enabled = False
-                self.box1.add(bt)
+                box2.add(bt)
                 numbering += 1
-            for dd in days:
-                if numbering < 7:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box1.add(bt)
-                    numbering += 1
-                elif 14 > numbering >= 7:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box2.add(bt)
-                    numbering += 1
-                elif 21 > numbering >= 14:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box3.add(bt)
-                    numbering += 1
-                elif 28 > numbering >= 21:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box4.add(bt)
-                    numbering += 1
-                elif 32 > numbering >= 28:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box5.add(bt)
-            for dd in range(1, 3):
+            elif 22 > numbering >= 15:
                 bt = Button(text=dd, style=Pack(width=40))
-                bt.enabled = False
-                self.box5.add(bt)
-        
-        if bts[days[0]] == 4:
-            numbering = 0
-            for dd in range(29, 32):
-                bt = Button(text=dd, style=Pack(width=40))
-                bt.enabled = False
-                self.box1.add(bt)
+                box3.add(bt)
                 numbering += 1
-            for dd in days:
-                if numbering < 7:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box1.add(bt)
-                    numbering += 1
-                elif 14 > numbering >= 7:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box2.add(bt)
-                    numbering += 1
-                elif 21 > numbering >= 14:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box3.add(bt)
-                    numbering += 1
-                elif 28 > numbering >= 21:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box4.add(bt)
-                    numbering += 1
-                elif 35 > numbering >= 28:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box5.add(bt)
-            for dd in range(1, 2):
+            elif 29 > numbering >= 22:
                 bt = Button(text=dd, style=Pack(width=40))
-                bt.enabled = False
-                self.box5.add(bt)
-        
-        if bts[days[0]] == 5:
-            numbering = 0
-            for dd in range(27, 32):
-                bt = Button(text=dd, style=Pack(width=40))
-                bt.enabled = False
-                self.box1.add(bt)
+                box4.add(bt)
                 numbering += 1
-            for dd in days:
-                if numbering < 7:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box1.add(bt)
-                    numbering += 1
-                elif 14 > numbering >= 7:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box2.add(bt)
-                    numbering += 1
-                elif 21 > numbering >= 14:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box3.add(bt)
-                    numbering += 1
-                elif 28 > numbering >= 21:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box4.add(bt)
-                    numbering += 1
-                elif 35 > numbering >= 28:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box5.add(bt)
-            for dd in range(1, 2):
+            elif 36 > numbering >= 29:
                 bt = Button(text=dd, style=Pack(width=40))
-                bt.enabled = False
-                self.box5.add(bt)
-        
-        if bts[days[0]] == 6:
-            numbering = 0
-            for dd in range(26, 32):
-                bt = Button(text=dd, style=Pack(width=40))
-                bt.enabled = False
-                self.box1.add(bt)
+                box5.add(bt)
                 numbering += 1
-            for dd in days:
-                if numbering < 7:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box1.add(bt)
-                    numbering += 1
-                elif 14 > numbering >= 7:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box2.add(bt)
-                    numbering += 1
-                elif 21 > numbering >= 14:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box3.add(bt)
-                    numbering += 1
-                elif 28 > numbering >= 21:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box4.add(bt)
-                    numbering += 1
-                elif 35 > numbering >= 28:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box5.add(bt)
-                    numbering += 1
-                elif 37 > numbering >= 35:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box6.add(bt)
-            for dd in range(1, 2):
+            elif 38 > numbering >= 36:
                 bt = Button(text=dd, style=Pack(width=40))
-                bt.enabled = False
-                self.box5.add(bt)
-        
-        if bts[days[0]] == 7:
-            numbering = 0
-            for dd in range(26, 32):
-                bt = Button(text=dd, style=Pack(width=40))
-                bt.enabled = False
-                self.box1.add(bt)
+                box6.add(bt)
                 numbering += 1
-            for dd in days:
-                if numbering < 7:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box1.add(bt)
-                    numbering += 1
-                elif 14 > numbering >= 7:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box2.add(bt)
-                    numbering += 1
-                elif 21 > numbering >= 14:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box3.add(bt)
-                    numbering += 1
-                elif 28 > numbering >= 21:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box4.add(bt)
-                    numbering += 1
-                elif 35 > numbering >= 28:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box5.add(bt)
-                    numbering += 1
-                elif 37 > numbering >= 35:
-                    bt = Button(text=dd, style=Pack(width=40))
-                    self.box6.add(bt)
-            for dd in range(1, 6):
-                bt = Button(text=dd, style=Pack(width=40))
-                bt.enabled = False
-                self.box6.add(bt)
-        
-        if bts[days[0]] == 1:
-            for d in bts:
-                bt = Button(text=d, style=Pack(width=40))
-                self.box1.add(bt)
-        self.main_box.add(self.box1)
-        self.main_box.add(self.box2)
-        self.main_box.add(self.box3)
-        self.main_box.add(self.box4)
-        self.main_box.add(self.box5)
-        self.main_box.add(self.box6)
 
     def set_status(self):
         print('log: wins > CalendarWidget.set_status')
