@@ -32,20 +32,25 @@ class Zirkonium(App):
                                 missing_value='',
                                 on_select=self.open_oked_window)
         self.calendar = CalendarWidget(self.path, self.mounth_active)
+        self.calendar.next_mounth_bt.on_press = self.next_mounth
+        self.calendar.prev_mounth_bt.on_press = self.prev_mounth
         try:
             with open(self.path + 'year.json', 'r') as file:
                 json.load(file)
+            self.set_func_for_cal_bts()
             self.show()
         except FileNotFoundError:
-            self.upload_calendar()
+            self.create_and_upload_calendar()
 
-    def upload_calendar(self):
-        with open(self.path + 'year.json', 'w') as file:
-            json.dump({}, file, indent=3)
+    def create_and_upload_calendar(self):
+        print('log: app > upload calendar')
         self.one_day_win = AddYearWindow()
         self.one_day_win.ok_bt.on_press = self.make_year
         self.windows.add(self.one_day_win)
         self.one_day_win.show()
+
+    def set_func_for_cal_bts(self):
+        print('log: app > set func for calendar bts')
         for bt in self.calendar.box1.children:
             bt.on_press = self.load_day_tasks
         for bt in self.calendar.box2.children:
@@ -60,9 +65,16 @@ class Zirkonium(App):
             bt.on_press = self.load_day_tasks
 
     def make_year(self, widget):
+        print('log: app > make_year')
+        with open(self.path + 'year.json', 'w') as file:
+            json.dump({}, file, indent=3)
+        # Determine the first day of the week for the current year
         self.calendar.set_one_day(self.one_day_win.set_one_day())
+        # Building the current year database
         self.calendar.make_year()
+        # Add calendar days buttons for a year
         self.calendar.add_bts()
+        # Creating a task database
         if self.calendar.one_day != None:
             try:
                 with open(self.path + 'bank.json', 'r') as file:
@@ -71,24 +83,45 @@ class Zirkonium(App):
                 with open(self.path + 'bank.json', 'w') as file:
                     json.dump({}, file, indent=3)
             self.one_day_win.close()
+            # Assign tasks to calendar buttons
+            self.set_func_for_cal_bts()
+            # Display the main window of the program
             self.show()
 
+    def next_mounth(self, widget):
+        print('log: calendar.next_mounth')
+        current_index = self.calendar.active_mounth - 1
+        self.calendar.active_mounth = list(self.calendar.mounths_list.keys())[current_index + 1]
+        self.calendar.info_lb.text = self.calendar.mounths_list[self.calendar.active_mounth] + '1390'
+        self.calendar.add_bts()
+        self.set_func_for_cal_bts()
+        self.calendar.set_status()
+
+    def prev_mounth(self, widget):
+        print('log: calendar.prev_mounth')
+        current_index = self.calendar.active_mounth - 1
+        self.calendar.active_mounth = list(self.calendar.mounths_list.keys())[current_index - 1]
+        self.calendar.info_lb.text = self.calendar.mounths_list[self.calendar.active_mounth] + '1390'
+        self.calendar.add_bts()
+        self.set_func_for_cal_bts()
+        self.calendar.set_status()
+
     def show(self):
+        print('log: app > show')
         scr = ScrollContainer(style=Pack(height=500, padding=(5, 5, 5, 5)))
         scr.content = self.tasks_list
-
         main_box = Box(style=Pack(direction='column', alignment='center', padding=(5, 5, 5, 5)))
         main_box.add(self.calendar)
         main_box.add(self.menubar)
         main_box.add(scr)
         main_box.add(Label(os.path.realpath(__file__)[:-6]))
-
         self.main_window = MainWindow(title=self.formal_name)
         self.main_window.content = main_box
         self.main_window.show()
         self.upload()
 
     def load_day_tasks(self, widget):
+        print('log: app > load day tasks')
         self.calendar.setdate(widget)
         self.date_active = int(widget.text)
         self.upload_day(self.date_active)
@@ -97,21 +130,23 @@ class Zirkonium(App):
         print('log: app > arranger')
         with open(self.path + 'bank.json', 'r') as f:
             bank = json.load(f)
-        for it in bank:
-            print(it)
 
     def add_task(self, widget):
         print('log: app > add bt')
         data = self.win.get()
         self.win.close()
         value = data[1] + data[2]
-        item = [None, data[0], value, 'انتظار']
+        # item = [icon, task name, value, statuse]
+        item = {'icon': None, 'taskname': data[0], 'sub': value, 'mounth':data[3], 'statuse': 'انتظار'}
         self.tasks_list.data.append(item)
         # add task to database
         with open(self.path + 'bank.json', 'r') as f:
             newbank = json.load(f)
-        item.append(int(data[3]))
+        # add day number to item
+        item['day'] = data[4]
+        # add item to database
         newbank[data[0]] = item
+        # save database
         with open(self.path + 'bank.json', 'w') as f:
             json.dump(newbank, f, indent=2)
         self.upload_day(self.date_active)
@@ -124,17 +159,17 @@ class Zirkonium(App):
             newbank = json.load(f)
         for itm in newbank:
             cd = newbank[itm]
-            self.tasks_list.data.append(cd[0], cd[1], cd[2], cd[3])
+            self.tasks_list.data.append(cd['icon'], cd['taskname'], cd['sub'], cd['statuse'])
 
-    def upload_day(self, number):
+    def upload_day(self, date):
         print('log: app > upload day')
         self.tasks_list.data.clear()
         with open(self.path + 'bank.json', 'r') as f:
             newbank = json.load(f)
         for itm in newbank:
             selected_itm = newbank[itm]
-            if selected_itm[4] == number:
-                self.tasks_list.data.append(selected_itm[0], selected_itm[1], selected_itm[2], selected_itm[3])
+            if int(selected_itm['day']) == date:
+                self.tasks_list.data.append(selected_itm['icon'], selected_itm['taskname'], selected_itm['sub'], selected_itm['statuse'])
 
     def oked_task(self, widget):
         # change task to oked
@@ -175,7 +210,7 @@ class Zirkonium(App):
 
     def open_add_task_window(self, widget):
         print('log: app > open_add_task_window')
-        self.date = int(self.calendar.date)
+        self.date = self.calendar.date
         self.win = AddTaskWindow(self.date)
         self.win.position = (self.main_window.size[0]/2, self.main_window.size[1]/2)
         self.win.ok_bt.on_press = self.add_task

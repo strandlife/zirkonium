@@ -9,6 +9,8 @@ class AddTaskWindow(Window):
         a window for get new task data from user
         """
         super(AddTaskWindow, self).__init__()
+        print('date:',date)
+        self.date = date
         self.on_close = self.close_handler
         self.title = "افزودن وظیفه جدید"
         self.size = (250, 170)
@@ -17,7 +19,7 @@ class AddTaskWindow(Window):
         self.importancs_sw = Switch('اهمیت', style=Pack())
         self.urgency_sw = Switch('فوریت', style=Pack())
         self.date_sp = NumberInput()
-        self.date_sp.value = date
+        self.date_sp.value = date[1]
         self.ok_bt = Button('افزودن', style=Pack(padding_top=40))
 
         self.box.add(self.task_name_te)
@@ -35,7 +37,8 @@ class AddTaskWindow(Window):
             ur = 2
         else:
             ur = 0
-        return [self.task_name_te.value, ur, self.importancs_sw.value, self.date_sp.value]
+        # return task name, ur = subvalues, important value, mounth name, number day
+        return [self.task_name_te.value, ur, self.importancs_sw.value, self.date[0], self.date[1]]
 
     def close_handler(self, window, **kwargs):
         """
@@ -92,9 +95,7 @@ class AddYearWindow(Window):
         self.week_days = {1:'شنبه', 2:'یکشنبه', 3:'دوشنبه',
                         4:'سه شنبه', 5:'چهارشنبه', 6:'پنج شنبه', 7:'جمعه'}
         for num_mnt in self.week_days:
-            print(self.week_days[num_mnt], self.start_day_se.value)
             if self.start_day_se.value == self.week_days[num_mnt]:
-                print(num_mnt)
                 return num_mnt
     
     def close_handler(self, window, **kwargs):
