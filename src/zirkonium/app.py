@@ -20,17 +20,18 @@ class Zirkonium(App):
         self.date_active = None
         self.mounth_active = 1
         
-        add_Task_bt = Button('افزودن', style=Pack(padding=(0, 5, 0, 5)), on_press=self.open_add_task_window)
+        self.add_Task_bt = Button('افزودن', style=Pack(padding=(0, 5, 0, 5)), on_press=self.open_add_task_window)
+        self.add_Task_bt.enabled = False
         self.menubar = Box(style=Pack(padding=(0, 0, 0, 0)))
 
         arranger_task_bt = Button('رده بندی', on_press=self.arranger)
-        self.menubar.add(add_Task_bt)
-        self.menubar.add(arranger_task_bt)
+        self.menubar.add(self.add_Task_bt)
+        #self.menubar.add(arranger_task_bt)
         self.tasks_list = Table(headings=['علامت', 'عنوان', 'ارزش', 'وضعیت'],
                                 style=Pack(direction="column"),
-                                multiple_select=True,
-                                missing_value='',
-                                on_select=self.open_oked_window)
+                                multiple_select=False,
+                                missing_value='')
+        self.tasks_list._on_activate = self.open_oked_window
         self.calendar = CalendarWidget(self.path, self.mounth_active)
         self.calendar.next_mounth_bt.on_press = self.next_mounth
         self.calendar.prev_mounth_bt.on_press = self.prev_mounth
@@ -63,6 +64,9 @@ class Zirkonium(App):
             bt.on_press = self.load_day_tasks
         for bt in self.calendar.box6.children:
             bt.on_press = self.load_day_tasks
+        # clear task table
+        for itm in list(self.tasks_list.data):
+            self.tasks_list.data.remove(itm)
 
     def make_year(self, widget):
         print('log: app > make_year')
@@ -107,7 +111,7 @@ class Zirkonium(App):
         self.calendar.set_status()
 
     def show(self):
-        print('log: app > show')
+        print('log: app > show main_window')
         scr = ScrollContainer(style=Pack(height=500, padding=(5, 5, 5, 5)))
         scr.content = self.tasks_list
         main_box = Box(style=Pack(direction='column', alignment='center', padding=(5, 5, 5, 5)))
@@ -121,7 +125,9 @@ class Zirkonium(App):
         self.upload()
 
     def load_day_tasks(self, widget):
-        print('log: app > load day tasks')
+        print('log: app > load day tasks by press bt')
+        print(widget.text)
+        self.add_Task_bt.enabled = True
         self.calendar.setdate(widget)
         self.date_active = int(widget.text)
         self.upload_day(self.date_active)
@@ -153,30 +159,31 @@ class Zirkonium(App):
         self.calendar.set_status()
 
     def upload(self):
-        print('log: app > upload')
+        print('log: app > upload all tasks')
         self.tasks_list.data.clear()
         with open(self.path + 'bank.json', 'r') as f:
             newbank = json.load(f)
         for itm in newbank:
             cd = newbank[itm]
-            self.tasks_list.data.append(cd['icon'], cd['taskname'], cd['sub'], cd['statuse'])
+            self.tasks_list.data.append((cd['icon'], cd['taskname'], cd['sub'], cd['statuse']))
 
     def upload_day(self, date):
-        print('log: app > upload day')
-        self.tasks_list.data.clear()
+        print('log: app > upload day', date)
+        for itm in list(self.tasks_list.data):
+            self.tasks_list.data.remove(itm)
         with open(self.path + 'bank.json', 'r') as f:
             newbank = json.load(f)
         for itm in newbank:
             selected_itm = newbank[itm]
             if int(selected_itm['day']) == date:
-                self.tasks_list.data.append(selected_itm['icon'], selected_itm['taskname'], selected_itm['sub'], selected_itm['statuse'])
+                self.tasks_list.data.append((selected_itm['icon'], selected_itm['taskname'], selected_itm['sub'], selected_itm['statuse']))
 
     def oked_task(self, widget):
         # change task to oked
         print('log: app > oked_task')
         with open(self.path + 'bank.json', 'r') as f:
             newbank = json.load(f)
-        newbank[self.task_name][3] = 'انجام شده'
+        newbank[self.task_name]['statuse'] = 'انجام شده'
         with open(self.path + 'bank.json', 'w') as f:
             json.dump(newbank, f, indent=2)
         self.ok_win.close()
@@ -199,7 +206,7 @@ class Zirkonium(App):
         print('log: app > cancel_task')
         with open(self.path + 'bank.json', 'r') as f:
             newbank = json.load(f)
-        newbank[self.task_name][3] = 'لغو شده'
+        newbank[self.task_name]['statuse'] = 'لغو شده'
         with open(self.path + 'bank.json', 'w') as f:
             json.dump(newbank, f, indent=2)
         self.ok_win.close()
@@ -217,7 +224,7 @@ class Zirkonium(App):
         self.windows.add(self.win)
         self.win.show()
 
-    def open_oked_window(self, widget, row):
+    def open_oked_window(self, row):
         print('log: app > open_oked_window')
         self.ok_win = OkTaskWindow()
         self.task_name = row.__dict__['عنوان']

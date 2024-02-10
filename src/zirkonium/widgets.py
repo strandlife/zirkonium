@@ -1,5 +1,6 @@
 import json
 import os
+import jdatetime
 from zirkonium.wins import AddYearWindow
 
 from toga import (Box, Window, Button, TextInput, ScrollContainer,
@@ -20,12 +21,16 @@ class CalendarWidget(Box):
         self.style = Pack(alignment='center')
         self.path = path
         self.date = ''
-        self.mounths_list = {1: 'فروردین', 2: 'اردیبهشت', 3: 'خرداد', 4:'تیر',
-                            5: 'مرداد', 6: 'شهریور', 7: 'مهر', 8: 'آبان', 9: 'آذر',
-                            10: 'دی', 11: 'بهمن', 12: 'اسفند'}
+        self.mounths_list = {1: 'فروردین', 2: 'اردیبهشت', 3: 'خرداد', 4:'تیر', 5: 'مرداد', 6: 'شهریور',
+                            7: 'مهر', 8: 'آبان', 9: 'آذر', 10: 'دی', 11: 'بهمن', 12: 'اسفند'}
         self.week_days = {1: 'شنبه', 2: '  یک  ', 3: '  دو  ', 4: '  سه  ',
                             5: ' چهار ', 6: ' پنج ', 7: 'جمعه'}
         self.active_mounth = mounth
+        self.today = jdatetime.date.today()
+        self.year = self.today.year
+        self.today_month = self.today.month
+        self.today_day = self.today.day
+        
         self.one_day = None
         self.style = Pack(flex=2, direction='column')
         self.main_box = Box(style=Pack(direction='column'))
@@ -37,11 +42,9 @@ class CalendarWidget(Box):
         self.prev_mounth_bt = Button('>>')
         self.next_year_bt = Button('<')
         self.prev_year_bt = Button('>')
-        self.info_lb = Label('1390 - فروردین', style=Pack(width=170, text_align='center'))
+        self.info_lb = Label('فروردین', style=Pack(width=170, text_align='center'))
         toolbar.add(self.prev_year_bt, self.prev_mounth_bt, self.info_lb, self.next_mounth_bt, self.next_year_bt)
-
         self.one_day_in = NumberInput()
-
         week_lbs_box = Box()
         for ind in self.week_days.keys():
             lb = Label(self.week_days[ind], style=Pack(padding=((5, 5, 5, 5))))
@@ -52,7 +55,7 @@ class CalendarWidget(Box):
         self.add(self.scr)
 
         if os.path.isfile(self.path + 'year.json'):
-            self.add_bts()
+            self.add_bts(self.today_month, self.today_day)
             self.set_status()
 
     def set_one_day(self, one_day):
@@ -90,11 +93,14 @@ class CalendarWidget(Box):
         with open(self.path + 'year.json', 'w') as file:
             json.dump(year, file, indent=3)
 
-    def add_bts(self):
+    def add_bts(self, month=None, day=None):
         """ add bts to calendar widget"""
         print('log: wins > CalendarWidget.add_bts')
         with open(self.path + 'year.json', 'r') as file:
             data = json.load(file)
+        if month is not None:
+            self.active_mounth = self.today_month
+        self.info_lb.text = str(self.year)+ ' - ' + self.mounths_list[self.active_mounth]
         bts = data[str(self.active_mounth)]
         self.box1 = Box()
         self.box2 = Box()
@@ -102,11 +108,7 @@ class CalendarWidget(Box):
         self.box4 = Box()
         self.box5 = Box()
         self.box6 = Box()
-        for bx in self.main_box.children:
-            self.main_box.remove(bx)
-        for bx in self.main_box.children:
-            self.main_box.remove(bx)
-        for bx in self.main_box.children:
+        for bx in list(self.main_box.children):
             self.main_box.remove(bx)
         self.main_box.add(self.box1)
         self.main_box.add(self.box2)
@@ -207,10 +209,7 @@ class CalendarWidget(Box):
         print('log: wins > CalendarWidget.set_status')
         with open(self.path + 'bank.json', 'r') as file:
             data = json.load(file)
-        
         duty_days = [int(data[day]['day']) for day in data if data[day]['mounth'] == self.active_mounth]
-        
-        print(duty_days)
         duty_days = list(set(duty_days))
         for day in data:
             if int(data[day]['mounth']) == self.active_mounth:
