@@ -29,7 +29,7 @@ class CalendarWidget(Box):
         self.today = jdatetime.date.today()
         self.year = self.today.year
         self.today_month = self.today.month
-        self.today_day = self.today.day
+        self.today_date_day = self.today.day
         
         self.one_day = None
         self.style = Pack(flex=2, direction='column')
@@ -55,7 +55,7 @@ class CalendarWidget(Box):
         self.add(self.scr)
 
         if os.path.isfile(self.path + 'year.json'):
-            self.add_bts(self.today_month, self.today_day)
+            self.add_bts(self.today_month, self.today_date_day)
             self.set_status()
 
     def set_one_day(self, one_day):
@@ -231,6 +231,25 @@ class CalendarWidget(Box):
                 for bt in self.box6.children:
                     if int(bt.text) in duty_days:
                         bt.style.background_color = '#f178f8'  # pink
+            else:
+                for bt in self.box1.children:
+                    if int(bt.text) in duty_days:
+                        bt.style.background_color = '#ffffff'  # pink
+                for bt in self.box2.children:
+                    if int(bt.text) in duty_days:
+                        bt.style.background_color = '#ffffff'  # pink
+                for bt in self.box3.children:
+                    if int(bt.text) in duty_days:
+                        bt.style.background_color = '#ffffff'  # pink
+                for bt in self.box4.children:
+                    if int(bt.text) in duty_days:
+                        bt.style.background_color = '#ffffff'  # pink
+                for bt in self.box5.children:
+                    if int(bt.text) in duty_days:
+                        bt.style.background_color = '#ffffff'  # pink
+                for bt in self.box6.children:
+                    if int(bt.text) in duty_days:
+                        bt.style.background_color = '#ffffff'  # pink
 
     def setdate(self, widget):
         print('log: wins > CalendarWidget.setdata')

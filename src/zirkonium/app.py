@@ -27,7 +27,7 @@ class Zirkonium(App):
         arranger_task_bt = Button('رده بندی', on_press=self.arranger)
         self.menubar.add(self.add_Task_bt)
         #self.menubar.add(arranger_task_bt)
-        self.tasks_list = Table(headings=['علامت', 'عنوان', 'ارزش', 'وضعیت'],
+        self.tasks_list = Table(headings=['علامت', 'عنوان', 'ارزش', 'وضعیت', "فرصت"],
                                 style=Pack(direction="column"),
                                 multiple_select=False,
                                 missing_value='')
@@ -176,7 +176,13 @@ class Zirkonium(App):
         for itm in newbank:
             selected_itm = newbank[itm]
             if int(selected_itm['day']) == date:
-                self.tasks_list.data.append((selected_itm['icon'], selected_itm['taskname'], selected_itm['sub'], selected_itm['statuse']))
+                deedline = self.calendar.today_date_day - int(selected_itm['day'])
+                if deedline > 0:
+                    deedline = 'منقضی'
+                elif deedline == 0:
+                    deedline = 'امروز'
+                print(deedline)
+                self.tasks_list.data.append((selected_itm['icon'], selected_itm['taskname'], selected_itm['sub'], selected_itm['statuse'], deedline))
 
     def oked_task(self, widget):
         # change task to oked
