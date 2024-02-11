@@ -194,6 +194,8 @@ class CalendarWidget(Box):
                 bt = Button(text=dd, style=Pack(width=40))
                 self.box6.add(bt)
                 numbering += 1
+            if int(bt.text) == int(self.today_date_day) and self.today_month == self.active_mounth:
+                bt.style.background_color = '#80b4f9'
         
         if self.active_mounth == 12:
             self.next_mounth_bt.enabled = False
@@ -211,45 +213,23 @@ class CalendarWidget(Box):
             data = json.load(file)
         duty_days = [int(data[day]['day']) for day in data if data[day]['mounth'] == self.active_mounth]
         duty_days = list(set(duty_days))
+        print(self.active_mounth)
         for day in data:
+            print(day)
             if int(data[day]['mounth']) == self.active_mounth:
-                for bt in self.box1.children:
-                    if int(bt.text) in duty_days:
-                        bt.style.background_color = '#f178f8'  # pink
-                for bt in self.box2.children:
-                    if int(bt.text) in duty_days:
-                        bt.style.background_color = '#f178f8'  # pink
-                for bt in self.box3.children:
-                    if int(bt.text) in duty_days:
-                        bt.style.background_color = '#f178f8'  # pink
-                for bt in self.box4.children:
-                    if int(bt.text) in duty_days:
-                        bt.style.background_color = '#f178f8'  # pink
-                for bt in self.box5.children:
-                    if int(bt.text) in duty_days:
-                        bt.style.background_color = '#f178f8'  # pink
-                for bt in self.box6.children:
-                    if int(bt.text) in duty_days:
-                        bt.style.background_color = '#f178f8'  # pink
+                for child in list(self.main_box.children):
+                    for bt in child.children:
+                        if int(bt.text) in duty_days:
+                            bt.style.background_color = '#f178f8'  # pink
+                        if int(bt.text) == int(self.today_date_day) and self.today_month == self.active_mounth:
+                            bt.style.background_color = '#80b4f9'  # blue
             else:
-                for bt in self.box1.children:
-                    if int(bt.text) in duty_days:
-                        bt.style.background_color = '#ffffff'  # pink
-                for bt in self.box2.children:
-                    if int(bt.text) in duty_days:
-                        bt.style.background_color = '#ffffff'  # pink
-                for bt in self.box3.children:
-                    if int(bt.text) in duty_days:
-                        bt.style.background_color = '#ffffff'  # pink
-                for bt in self.box4.children:
-                    if int(bt.text) in duty_days:
-                        bt.style.background_color = '#ffffff'  # pink
-                for bt in self.box5.children:
-                    if int(bt.text) in duty_days:
-                        bt.style.background_color = '#ffffff'  # pink
-                for bt in self.box6.children:
-                    if int(bt.text) in duty_days:
-                        bt.style.background_color = '#ffffff'  # pink
+                for child in list(self.main_box.children):
+                    for bt in child.children:
+                        if int(bt.text) in duty_days:
+                            bt.style.background_color = '#ffffff'  # white
+                        if int(bt.text) == int(self.today_date_day) and self.today_month == self.active_mounth:
+                            bt.style.background_color = '#80b4f9'  # blue
 
     def setdate(self, widget):
         print('log: wins > CalendarWidget.setdata')

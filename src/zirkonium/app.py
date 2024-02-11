@@ -122,11 +122,10 @@ class Zirkonium(App):
         self.main_window = MainWindow(title=self.formal_name)
         self.main_window.content = main_box
         self.main_window.show()
-        self.upload()
+        #self.upload()
 
     def load_day_tasks(self, widget):
         print('log: app > load day tasks by press bt')
-        print(widget.text)
         self.add_Task_bt.enabled = True
         self.calendar.setdate(widget)
         self.date_active = int(widget.text)
