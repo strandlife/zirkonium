@@ -148,7 +148,8 @@ requires = [
 
 [tool.briefcase.app.zirkonium.android]
 requires = [
-    "toga-android~=0.4.2"
+    "toga-android~=0.4.2",
+    "jdatetime"
 ]
 
 # Web deployments
