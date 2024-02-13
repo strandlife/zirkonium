@@ -22,11 +22,13 @@ class Zirkonium(App):
         
         self.add_Task_bt = Button('افزودن', style=Pack(padding=(0, 5, 0, 5)), on_press=self.open_add_task_window)
         self.add_Task_bt.enabled = False
+        self.show_all_tasks = Button('نمایش همه', on_press=self.upload)
         self.menubar = Box(style=Pack(padding=(0, 0, 0, 0)))
 
         arranger_task_bt = Button('رده بندی', on_press=self.arranger)
         self.menubar.add(self.add_Task_bt)
         #self.menubar.add(arranger_task_bt)
+        self.menubar.add(self.show_all_tasks)
         self.tasks_list = Table(headings=['علامت', 'عنوان', 'ارزش', 'وضعیت', "فرصت"],
                                 style=Pack(direction="column"),
                                 multiple_select=False,
@@ -125,7 +127,7 @@ class Zirkonium(App):
         #self.upload()
 
     def load_day_tasks(self, widget):
-        print('log: app > load day tasks by press bt')
+        print('log: app > load day tasks by press bt:', widget.text)
         self.add_Task_bt.enabled = True
         self.calendar.setdate(widget)
         self.date_active = int(widget.text)
@@ -142,7 +144,7 @@ class Zirkonium(App):
         self.win.close()
         value = data[1] + data[2]
         # item = [icon, task name, value, statuse]
-        item = {'icon': None, 'taskname': data[0], 'sub': value, 'mounth':data[3], 'statuse': 'انتظار'}
+        item = {'icon': None, 'taskname': data[0], 'sub': value, 'mounth': data[3], 'statuse': 'انتظار'}
         self.tasks_list.data.append(item)
         # add task to database
         with open(self.path + 'bank.json', 'r') as f:
@@ -157,14 +159,19 @@ class Zirkonium(App):
         self.upload_day(self.date_active)
         self.calendar.set_status()
 
-    def upload(self):
+    def upload(self, widget):
         print('log: app > upload all tasks')
         self.tasks_list.data.clear()
         with open(self.path + 'bank.json', 'r') as f:
             newbank = json.load(f)
         for itm in newbank:
             cd = newbank[itm]
-            self.tasks_list.data.append((cd['icon'], cd['taskname'], cd['sub'], cd['statuse']))
+            deedline = self.calendar.today_date_day - int(cd['day'])
+            if deedline > 0:
+                deedline = 'منقضی'
+            elif deedline == 0:
+                deedline = 'امروز'
+            self.tasks_list.data.append((cd['icon'], cd['taskname'], cd['sub'], cd['statuse'], deedline))
 
     def upload_day(self, date):
         print('log: app > upload day', date)
@@ -180,7 +187,6 @@ class Zirkonium(App):
                     deedline = 'منقضی'
                 elif deedline == 0:
                     deedline = 'امروز'
-                print(deedline)
                 self.tasks_list.data.append((selected_itm['icon'], selected_itm['taskname'], selected_itm['sub'], selected_itm['statuse'], deedline))
 
     def oked_task(self, widget):
