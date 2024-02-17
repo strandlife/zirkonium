@@ -43,12 +43,15 @@ class CalendarWidget(Box):
         self.next_year_bt = Button('<')
         self.prev_year_bt = Button('>')
         self.info_lb = Label('فروردین', style=Pack(width=170, text_align='center'))
+
         toolbar.add(self.prev_year_bt, self.prev_mounth_bt, self.info_lb, self.next_mounth_bt, self.next_year_bt)
         self.one_day_in = NumberInput()
         week_lbs_box = Box()
+
         for ind in self.week_days.keys():
             lb = Label(self.week_days[ind], style=Pack(padding=((5, 5, 5, 5))))
             week_lbs_box.add(lb)
+
         self.add(toolbar)
         self.add(week_lbs_box)
         self.add(self.main_box)
@@ -208,13 +211,15 @@ class CalendarWidget(Box):
 
     def set_status(self):
         print('log: wins > CalendarWidget.set_status')
+        # open database
         with open(self.path + 'bank.json', 'r') as file:
             data = json.load(file)
-        duty_days = [int(data[day]['day']) for day in data if data[day]['mounth'] == self.active_mounth]
+        # get days active
+        duty_days = [int(data[task_name]['day']) for task_name in data if data[task_name]['mounth'] == self.active_mounth]
         duty_days = list(set(duty_days))
-        for day in data:
-            print(self.day_selected)
-            if int(data[day]['mounth']) == self.active_mounth:
+        for task_name in data:
+            # get active month
+            if int(data[task_name]['mounth']) == self.today_month:
                 for child in list(self.main_box.children):
                     for bt in child.children:
                         # Color assignment buttons
@@ -222,17 +227,32 @@ class CalendarWidget(Box):
                             bt.style.background_color = '#2ccc00'  # green deep
                         if int(bt.text) in duty_days and int(bt.text) < self.today_date_day:
                             bt.style.background_color = '#f4942e'  # orange
-                        if int(bt.text) in duty_days and int(bt.text) == self.day_selected:
-                            bt.style.background_color = '#5bfe2e'  # green
-                        if int(bt.text) == int(self.today_date_day) and self.today_month == self.active_mounth:
-                            bt.style.background_color = '#00d6ff'  # blue
-            else:
-                for child in list(self.main_box.children):
-                    for bt in child.children:
-                        if int(bt.text) in duty_days:
+                        if int(bt.text) not in duty_days:
                             bt.style.background_color = '#ffffff'  # white
                         if int(bt.text) == int(self.today_date_day) and self.today_month == self.active_mounth:
                             bt.style.background_color = '#00d6ff'  # blue
+                        if int(bt.text) == self.day_selected:
+                            bt.style.background_color = '#5bfe2e'  # green
+            elif self.active_mounth > self.today_month:
+                for child in list(self.main_box.children):
+                    for bt in child.children:
+                        if int(bt.text):
+                            bt.style.background_color = '#ffffff'  # white
+                        if int(bt.text) in duty_days:
+                            bt.style.background_color = '#2ccc00'  # green deep
+                        if int(bt.text) == self.day_selected:
+                            bt.style.background_color = '#5bfe2e'  # green
+            elif self.active_mounth < self.today_month:
+                for child in list(self.main_box.children):
+                    for bt in child.children:
+                        if int(bt.text):
+                            bt.style.background_color = '#ffffff'  # white
+                        if int(bt.text) in duty_days:
+                            bt.style.background_color = '#f4942e'  # orange
+                        if int(bt.text) == self.day_selected:
+                            bt.style.background_color = '#5bfe2e'  # green
+                        
+
 
     def setdate(self, widget):
         print('log: wins > CalendarWidget.setdata')
@@ -241,7 +261,7 @@ class CalendarWidget(Box):
         """
         self.set_status()
         self.reset_texts()
-        self.day_selected = widget.text
+        self.day_selected = int(widget.text)
         # [mounth selected, day selected]
         self.date = [self.active_mounth, self.day_selected]
         widget.style.background_color = '#5bfe2e'  # green

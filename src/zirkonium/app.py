@@ -18,7 +18,7 @@ class Zirkonium(App):
         """
         self.path = os.path.realpath(__file__)[:-6]
         self.date_active = None
-        self.mounth_active = 1
+        self.mounth_active = None
         
         self.add_Task_bt = Button('افزودن', style=Pack(padding=(0, 5, 0, 5)), on_press=self.open_add_task_window)
         self.add_Task_bt.enabled = False
@@ -37,6 +37,7 @@ class Zirkonium(App):
         self.calendar = CalendarWidget(self.path, self.mounth_active)
         self.calendar.next_mounth_bt.on_press = self.next_mounth
         self.calendar.prev_mounth_bt.on_press = self.prev_mounth
+        
         try:
             with open(self.path + 'year.json', 'r') as file:
                 json.load(file)
@@ -101,6 +102,7 @@ class Zirkonium(App):
         self.calendar.info_lb.text = self.calendar.mounths_list[self.calendar.active_mounth] + '1390'
         self.calendar.add_bts()
         self.set_func_for_cal_bts()
+        self.calendar.day_selected = None
         self.calendar.set_status()
 
     def prev_mounth(self, widget):
@@ -110,6 +112,7 @@ class Zirkonium(App):
         self.calendar.info_lb.text = self.calendar.mounths_list[self.calendar.active_mounth] + '1390'
         self.calendar.add_bts()
         self.set_func_for_cal_bts()
+        self.calendar.day_selected = None
         self.calendar.set_status()
 
     def show(self):
@@ -124,7 +127,6 @@ class Zirkonium(App):
         self.main_window = MainWindow(title=self.formal_name)
         self.main_window.content = main_box
         self.main_window.show()
-        #self.upload()
 
     def load_day_tasks(self, widget):
         print('log: app > load day tasks by press bt:', widget.text)
@@ -181,13 +183,15 @@ class Zirkonium(App):
             newbank = json.load(f)
         for itm in newbank:
             selected_itm = newbank[itm]
-            if int(selected_itm['day']) == date:
+            if int(selected_itm['day']) == date and  int(selected_itm['mounth']) == self.calendar.active_mounth:
                 deedline = self.calendar.today_date_day - int(selected_itm['day'])
+                self.mounth_active = self.calendar.today_month
                 if deedline > 0:
                     deedline = 'منقضی'
                 elif deedline == 0:
                     deedline = 'امروز'
                 self.tasks_list.data.append((selected_itm['icon'], selected_itm['taskname'], selected_itm['sub'], selected_itm['statuse'], deedline))
+        self.calendar.set_status()
 
     def oked_task(self, widget):
         # change task to oked
@@ -223,6 +227,27 @@ class Zirkonium(App):
         self.ok_win.close()
         self.upload_day(self.date_active)
 
+    def transfer_task(self, widget):
+        with open(self.path + 'bank.json', 'r') as f:
+            newbank = json.load(f)
+        todey_day_name = ''
+        for day_name in newbank:
+            print('day=',day_name)
+            if newbank[day_name]['day'] == self.ok_win.get()[0]:
+                todey_day_name = day_name
+                todey_day = newbank[day_name]
+        newbank.pop(todey_day_name)
+        new_day = self.ok_win.get()
+        print(new_day)
+        newbank[todey_day['taskname']] = {'icon':todey_day['icon'], 'taskname':todey_day['taskname'], 'sub':todey_day['sub'],
+                                    'mounth':new_day[2], 'day':new_day[1], 'statuse':'انتظار'}
+        # save to database
+        with open(self.path + 'bank.json', 'w') as f:
+            json.dump(newbank, f, indent=2)
+        self.ok_win.close()
+        # update calendar and tasks table 
+        self.upload_day(self.date_active)
+
     def close_task(self, widget):
         self.ok_win.close()
 
@@ -237,13 +262,14 @@ class Zirkonium(App):
 
     def open_oked_window(self, row):
         print('log: app > open_oked_window')
-        self.ok_win = OkTaskWindow()
+        self.ok_win = OkTaskWindow(self.date_active, self.mounth_active)
         self.task_name = row.__dict__['عنوان']
         self.active_row = row
         self.ok_win.position = (self.main_window.size[0]/2, self.main_window.size[1]/2)
         self.ok_win.oked_bt.on_press = self.oked_task
         self.ok_win.delete_bt.on_press = self.delete_task
         self.ok_win.cancel_bt.on_press = self.cancel_task
+        self.ok_win.transfer_bt.on_press = self.transfer_task
         self.ok_win.close_bt.on_press = self.close_task
         self.windows.add(self.ok_win)
         self.ok_win.show()
