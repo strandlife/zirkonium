@@ -152,3 +152,5 @@ cython_debug/
 #.idea/
 
 src/zirkonium/bank.json
+
+src/zirkonium/year.json

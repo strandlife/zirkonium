@@ -29,13 +29,13 @@ test_requires = [
 
 [tool.briefcase.app.zirkonium.macOS]
 requires = [
-    "toga-cocoa~=0.4.1",
-    "std-nslog~=1.0.0"
+    "toga-cocoa~=0.4.2",
+    "std-nslog~=1.0.3"
 ]
 
 [tool.briefcase.app.zirkonium.linux]
 requires = [
-    "toga-gtk~=0.4.1",
+    "toga-gtk~=0.4.2",
 ]
 
 [tool.briefcase.app.zirkonium.linux.system.debian]
@@ -55,6 +55,10 @@ system_runtime_requires = [
     # Needed to provide WebKit2 at runtime
     # "libwebkit2gtk-4.0-37",
     # "gir1.2-webkit2-4.0",
+    'libgtk-3-dev',
+    'librsvg2-dev',
+    'patchelf',
+    'libcairo-dev'
 ]
 
 [tool.briefcase.app.zirkonium.linux.system.rhel]
@@ -63,6 +67,7 @@ system_requires = [
     "cairo-gobject-devel",
     # Needed to compile PyGObject wheel
     "gobject-introspection-devel",
+    'pycairo'
 ]
 
 system_runtime_requires = [
@@ -88,6 +93,7 @@ system_requires = [
     "libcanberra",
     # Needed to provide WebKit2
     # "webkit2gtk",
+    'libgirepository1.0-dev'
 ]
 
 system_runtime_requires = [
@@ -130,24 +136,25 @@ flatpak_sdk = "org.gnome.Sdk"
 
 [tool.briefcase.app.zirkonium.windows]
 requires = [
-    "toga-winforms~=0.4.1",
+    "toga-winforms~=0.4.2",
 ]
 
 # Mobile deployments
 [tool.briefcase.app.zirkonium.iOS]
 requires = [
-    "toga-iOS~=0.4.1",
-    "std-nslog~=1.0.0"
+    "toga-iOS~=0.4.2",
+    "std-nslog~=1.0.3"
 ]
 
 [tool.briefcase.app.zirkonium.android]
 requires = [
-    "toga-android~=0.4.1"
+    "toga-android~=0.4.2",
+    "jdatetime"
 ]
 
 # Web deployments
 [tool.briefcase.app.zirkonium.web]
 requires = [
-    "toga-web~=0.4.1",
+    "toga-web~=0.4.2",
 ]
 style_framework = "Shoelace v2.3"
