@@ -4,10 +4,10 @@ My first application
 import json
 import os
 
-from toga import (App, Box, MainWindow, Table, Button, Label, ScrollContainer)
+from toga import (App, Box, MainWindow, Table, Button, Label, OptionContainer, DetailedList, ScrollContainer)
 from toga.style import Pack
 from zirkonium.widgets import CalendarWidget
-from zirkonium.wins import AddTaskWindow, OkTaskWindow, AddYearWindow
+from zirkonium.wins import AddTaskWindow, OkTaskWindow, AddYearWindow, Add_Act_Window
 
 
 class Zirkonium(App):
@@ -18,22 +18,32 @@ class Zirkonium(App):
         """
         self.path = os.path.realpath(__file__)[:-6]
         self.date_active = None
-        self.mounth_active = None
-        
+        self.mounth_active = 1
+        self.tabs = OptionContainer()
+        # daily
         self.add_Task_bt = Button('افزودن', style=Pack(padding=(0, 5, 0, 5)), on_press=self.open_add_task_window)
         self.add_Task_bt.enabled = False
         self.show_all_tasks = Button('نمایش همه', on_press=self.upload)
         self.menubar = Box(style=Pack(padding=(0, 0, 0, 0)))
-
         arranger_task_bt = Button('رده بندی', on_press=self.arranger)
         self.menubar.add(self.add_Task_bt)
         #self.menubar.add(arranger_task_bt)
         self.menubar.add(self.show_all_tasks)
-        self.tasks_list = Table(headings=['علامت', 'عنوان', 'ارزش', 'وضعیت', "فرصت"],
+        self.tasks_list = Table(headings=['عنوان', 'ارزش', 'وضعیت', "فرصت"],
                                 style=Pack(direction="column"),
                                 multiple_select=False,
                                 missing_value='')
         self.tasks_list._on_activate = self.open_oked_window
+        # gilding
+        self.gilding_list = DetailedList(on_select=self.select_act)
+        self.add_forbidden_act_bt = Button('حرام', on_press=self.add_forbidden_act_window)
+        self.add_abominable_act_bt = Button('مکروه', on_press=self.add_abominable_act_window)
+        self.del_act_bt = Button('حذف', on_press=self.delete_act)
+        self.gilding_menubat = Box()
+        self.gilding_menubat.add(self.add_forbidden_act_bt)
+        self.gilding_menubat.add(self.add_abominable_act_bt)
+        self.gilding_menubat.add(self.del_act_bt)
+        # calendar
         self.calendar = CalendarWidget(self.path, self.mounth_active)
         self.calendar.next_mounth_bt.on_press = self.next_mounth
         self.calendar.prev_mounth_bt.on_press = self.prev_mounth
@@ -89,6 +99,8 @@ class Zirkonium(App):
             except FileNotFoundError:
                 with open(self.path + 'bank.json', 'w') as file:
                     json.dump({}, file, indent=3)
+                with open(self.path + 'gilding.json', 'w') as file:
+                    json.dump([], file, indent=3)
             self.one_day_win.close()
             # Assign tasks to calendar buttons
             self.set_func_for_cal_bts()
@@ -121,12 +133,22 @@ class Zirkonium(App):
         scr.content = self.tasks_list
         main_box = Box(style=Pack(direction='column', alignment='center', padding=(5, 5, 5, 5)))
         main_box.add(self.calendar)
-        main_box.add(self.menubar)
-        main_box.add(scr)
-        main_box.add(Label(os.path.realpath(__file__)[:-6]))
+        daily_box = Box(style=Pack(direction='column'))
+        daily_box.add(self.menubar)
+        daily_box.add(scr)
+        #daily_box.add(Label(os.path.realpath(__file__)[:-6]))
+        gilding_box = Box(style=Pack(direction='column'))
+        gilding_scr = ScrollContainer(style=Pack(height=500, padding=(5, 5, 5, 5)))
+        gilding_scr.content = self.gilding_list
+        gilding_box.add(self.gilding_menubat)
+        gilding_box.add(gilding_scr)
+        self.tabs.content.append('روزانه', daily_box)
+        self.tabs.content.append('تذهیب', gilding_box)
+        main_box.add(self.tabs)
         self.main_window = MainWindow(title=self.formal_name)
         self.main_window.content = main_box
         self.main_window.show()
+        self.upload_gilding()
 
     def load_day_tasks(self, widget):
         print('log: app > load day tasks by press bt:', widget.text)
@@ -146,7 +168,7 @@ class Zirkonium(App):
         self.win.close()
         value = data[1] + data[2]
         # item = [icon, task name, value, statuse]
-        item = {'icon': None, 'taskname': data[0], 'sub': value, 'mounth': data[3], 'statuse': 'انتظار'}
+        item = {'taskname': data[0], 'sub': value, 'mounth': data[3], 'statuse': 'انتظار'}
         self.tasks_list.data.append(item)
         # add task to database
         with open(self.path + 'bank.json', 'r') as f:
@@ -173,7 +195,7 @@ class Zirkonium(App):
                 deedline = 'منقضی'
             elif deedline == 0:
                 deedline = 'امروز'
-            self.tasks_list.data.append((cd['icon'], cd['taskname'], cd['sub'], cd['statuse'], deedline))
+            self.tasks_list.data.append((cd['taskname'], cd['sub'], cd['statuse'], deedline))
 
     def upload_day(self, date):
         print('log: app > upload day', date)
@@ -190,8 +212,16 @@ class Zirkonium(App):
                     deedline = 'منقضی'
                 elif deedline == 0:
                     deedline = 'امروز'
-                self.tasks_list.data.append((selected_itm['icon'], selected_itm['taskname'], selected_itm['sub'], selected_itm['statuse'], deedline))
+                self.tasks_list.data.append((selected_itm['taskname'], selected_itm['sub'], selected_itm['statuse'], deedline))
         self.calendar.set_status()
+
+    def upload_gilding(self):
+        print('log: app > upload gilding')
+        self.gilding_list.data.clear()
+        with open(self.path + 'gilding.json', 'r') as f:
+            newdata = json.load(f)
+        for itm in newdata:
+            self.gilding_list.data.append(itm[0])
 
     def oked_task(self, widget):
         # change task to oked
@@ -239,7 +269,7 @@ class Zirkonium(App):
         newbank.pop(todey_day_name)
         new_day = self.ok_win.get()
         print(new_day)
-        newbank[todey_day['taskname']] = {'icon':todey_day['icon'], 'taskname':todey_day['taskname'], 'sub':todey_day['sub'],
+        newbank[todey_day['taskname']] = {'taskname':todey_day['taskname'], 'sub':todey_day['sub'],
                                     'mounth':new_day[2], 'day':new_day[1], 'statuse':'انتظار'}
         # save to database
         with open(self.path + 'bank.json', 'w') as f:
@@ -273,6 +303,51 @@ class Zirkonium(App):
         self.ok_win.close_bt.on_press = self.close_task
         self.windows.add(self.ok_win)
         self.ok_win.show()
+
+    def add_forbidden_act_window(self, widget):
+        print('log: app > add_forbidden_act_window')
+        self.win_act = Add_Act_Window('forbidden act')
+        self.win_act.position = (self.main_window.size[0]/2, self.main_window.size[1]/2)
+        self.win_act.ok_bt.on_press = self.add_act
+        self.windows.add(self.win_act)
+        self.win_act.show()
+
+    def add_abominable_act_window(self, widget):
+        print('log: app > add_abominable_act_window')
+        self.win_act = Add_Act_Window('abominable act')
+        self.win_act.position = (self.main_window.size[0]/2, self.main_window.size[1]/2)
+        self.win_act.ok_bt.on_press = self.add_act
+        self.windows.add(self.win_act)
+        self.win_act.show()
+
+    def add_act(self, widget):
+        print('log: app > add_forbidden_act')
+        self.win_act.close()
+        with open(self.path + 'gilding.json', 'r') as f:
+            newdata = json.load(f)
+        newdata.append(self.win_act.get())
+        self.gilding_list.data.append(self.win_act.get()[0])
+        #self.gilding_list.data[0].style.color = '#c00d0d'
+        with open(self.path + 'gilding.json', 'w') as f:
+            json.dump(newdata, f, indent=2)
+
+    def select_act(self, widget):
+        print('select act')
+        self.selcted_act = self.gilding_list.selection.title
+
+    def delete_act(self, widget):
+        print('log: app > delete_act')
+        with open(self.path + 'gilding.json', 'r') as f:
+            newdata = json.load(f)
+        for itm in newdata:
+            print(itm)
+            if itm[0] == self.selcted_act:
+                for row in self.gilding_list.data:
+                    if row.title == self.selcted_act:
+                        self.gilding_list.data.remove(row)
+                newdata.remove(itm)
+        with open(self.path + 'gilding.json', 'w') as f:
+            json.dump(newdata, f, indent=2)
 
 
 def main():
