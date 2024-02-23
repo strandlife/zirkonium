@@ -34,7 +34,7 @@ class CalendarWidget(Box):
         
         self.one_day = None
         self.style = Pack(flex=2, direction='column')
-        self.main_box = Box(style=Pack(direction='column'))
+        self.main_box = Box(style=Pack(height=180, direction='column'))
         self.infi_label = Label('')
         # toolbar
         toolbar = Box()
