@@ -58,7 +58,7 @@ class CalendarWidget(Box):
 
         if os.path.isfile(self.path + 'year.json'):
             self.add_bts(self.today_month, self.today_date_day)
-            self.set_status()
+            self.set_status_daily()
 
     def set_one_day(self, one_day):
         print('log: calendar.set_one_day')
@@ -209,8 +209,8 @@ class CalendarWidget(Box):
             self.prev_mounth_bt.enabled = True
             self.next_mounth_bt.enabled = True
 
-    def set_status(self):
-        print('log: wins > CalendarWidget.set_status')
+    def set_status_daily(self):
+        print('log: wins > CalendarWidget.set_status_daily')
         # open database
         with open(self.path + 'bank.json', 'r') as file:
             data = json.load(file)
@@ -233,6 +233,8 @@ class CalendarWidget(Box):
                             bt.style.background_color = '#00d6ff'  # blue
                         if int(bt.text) == self.day_selected:
                             bt.style.background_color = '#5bfe2e'  # green
+                        if int(bt.text):
+                            bt.enabled = True
             elif self.active_mounth > self.today_month:
                 for child in list(self.main_box.children):
                     for bt in child.children:
@@ -242,6 +244,8 @@ class CalendarWidget(Box):
                             bt.style.background_color = '#2ccc00'  # green deep
                         if int(bt.text) == self.day_selected:
                             bt.style.background_color = '#5bfe2e'  # green
+                        if int(bt.text):
+                            bt.enabled = True
             elif self.active_mounth < self.today_month:
                 for child in list(self.main_box.children):
                     for bt in child.children:
@@ -251,15 +255,43 @@ class CalendarWidget(Box):
                             bt.style.background_color = '#f4942e'  # orange
                         if int(bt.text) == self.day_selected:
                             bt.style.background_color = '#5bfe2e'  # green
-                        
+                        if int(bt.text):
+                            bt.enabled = True
 
+    def set_status_gilding(self):
+        print('log: wins > CalendarWidget.set_status_gilding')
+        with open(self.path + 'gilding.json', 'r') as file:
+            data = json.load(file)
+        # get days have act
+        days = [data[day][1] for day in data]
+        days = list(set(days))
+        if len(data) > 0:
+            for itm in data:
+                for child in list(self.main_box.children):
+                    for bt in child.children:
+                        # days_passed
+                        if int(bt.text) in days and data[itm][2] == self.active_mounth:
+                            bt.style.background_color = '#f0a702'  # orange
+                        # future and passed day
+                        if int(bt.text) not in days:
+                            bt.style.background_color = '#ffffff'  # white
+                        if int(bt.text) > self.today_date_day and data[itm][2] == self.active_mounth:
+                            bt.enabled = False
+        elif len(data) == 0:
+            for child in list(self.main_box.children):
+                for bt in child.children:
+                    # Color assignment buttons
+                    if int(bt.text) in range(1, 32):
+                        bt.style.background_color = '#ffffff'  # white
+        # today_day
 
-    def setdate(self, widget):
-        print('log: wins > CalendarWidget.setdata')
+    def setdate_task(self, widget):
+        print('log: wins > CalendarWidget.setdata_tasks')
         """
         set date and new color by press date bt
+        and selecting day
         """
-        self.set_status()
+        self.set_status_daily()
         self.reset_texts()
         self.day_selected = int(widget.text)
         # [mounth selected, day selected]
@@ -267,25 +299,64 @@ class CalendarWidget(Box):
         widget.style.background_color = '#5bfe2e'  # green
 
     def reset_texts(self):
-        print('log: wins > CalendarWidget.reset_text')
+        print('log: wins > CalendarWidget.reset_text_tasks')
         """
-        change widget settings by press bt day
+        change widget settings by press bt day for selected day
         """
+        colors = [rgb(91, 254, 46), rgb(240, 167, 2)]
         for bt in self.box1.children:
-            if bt.style.background_color == rgb(91, 254, 46):  # green
+            if bt.style.background_color == colors[0]:  # green
                 bt.style.background_color = '#ffffff'   # white
         for bt in self.box2.children:
-            if bt.style.background_color == rgb(91, 254, 46):  # green
+            if bt.style.background_color == colors[0]:  # green
                 bt.style.background_color = '#ffffff'   # white
         for bt in self.box3.children:
-            if bt.style.background_color == rgb(91, 254, 46):  # green
+            if bt.style.background_color == colors[0]:  # green
                 bt.style.background_color = '#ffffff'   # white
         for bt in self.box4.children:
-            if bt.style.background_color == rgb(91, 254, 46):  # green
+            if bt.style.background_color == colors[0]:  # green
                 bt.style.background_color = '#ffffff'   # white
         for bt in self.box5.children:
-            if bt.style.background_color == rgb(91, 254, 46):  # green
+            if bt.style.background_color == colors[0]:  # green
                 bt.style.background_color = '#ffffff'   # white
         for bt in self.box6.children:
-            if bt.style.background_color == rgb(91, 254, 46):  # green
+            if bt.style.background_color == colors[0]:  # green
+                bt.style.background_color = '#ffffff'   # white
+    
+    def setdate_gilding(self, widget):
+        print('log: wins > CalendarWidget.setdata_gilding')
+        """
+        set date and new color by press date bt
+        and selecting day
+        """
+        self.set_status_gilding()
+        self.reset_texts_gilding()
+        self.day_selected = int(widget.text)
+        # [mounth selected, day selected]
+        self.date = [self.active_mounth, self.day_selected]
+        widget.style.background_color = '#5bfe2e'  # green
+
+    def reset_texts_gilding(self):
+        print('log: wins > CalendarWidget.reset_text_gilding')
+        """
+        change widget settings by press bt day for selected day
+        """
+        colors = [rgb(91, 254, 46), rgb(240, 167, 2)]
+        for bt in self.box1.children:
+            if bt.style.background_color == colors[0]:  # green
+                bt.style.background_color = '#ffffff'   # white
+        for bt in self.box2.children:
+            if bt.style.background_color == colors[0]:  # green
+                bt.style.background_color = '#ffffff'   # white
+        for bt in self.box3.children:
+            if bt.style.background_color == colors[0]:  # green
+                bt.style.background_color = '#ffffff'   # white
+        for bt in self.box4.children:
+            if bt.style.background_color == colors[0]:  # green
+                bt.style.background_color = '#ffffff'   # white
+        for bt in self.box5.children:
+            if bt.style.background_color == colors[0]:  # green
+                bt.style.background_color = '#ffffff'   # white
+        for bt in self.box6.children:
+            if bt.style.background_color == colors[0]:  # green
                 bt.style.background_color = '#ffffff'   # white
