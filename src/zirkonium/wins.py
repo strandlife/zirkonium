@@ -1,4 +1,4 @@
-from toga import (Box, Window, Button, TextInput, NumberInput,Divider,
+from toga import (Box, Window, Button, TextInput, MultilineTextInput, NumberInput, Divider,
         Selection, Switch, Label, DetailedList)
 from toga.style import Pack
 
@@ -136,7 +136,7 @@ class Add_Act_Window(Window):
         self.title = "add year Window"
         self.size = (250, 180)
         self.box = Box(style=Pack(padding=(10, 10, 10, 10), direction='column'))
-        self.title_in = TextInput(placeholder='عنوان فعالیت را وارد کنید', style=Pack())
+        self.title_in = MultilineTextInput(placeholder='عنوان فعالیت را وارد کنید', style=Pack())
         self.act_type = act_type
         self.ok_bt = Button('تایید', style=Pack(padding=(10, 10, 10, 10)))
         self.box.add(self.title_in)
