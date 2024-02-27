@@ -19,7 +19,7 @@ class Zirkonium(App):
         self.path = os.path.realpath(__file__)[:-6]
         self.date_active = None
         self.mounth_active = 1
-        self.tabs = OptionContainer()
+        self.tabs = OptionContainer(on_select=self.select_tab)
         # daily
         self.add_Task_bt = Button('افزودن', style=Pack(padding=(0, 5, 0, 5)), on_press=self.open_add_task_window)
         self.add_Task_bt.enabled = False
@@ -27,7 +27,7 @@ class Zirkonium(App):
         self.menubar = Box(style=Pack(padding=(0, 0, 0, 0)))
         arranger_task_bt = Button('رده بندی', on_press=self.arranger)
         self.menubar.add(self.add_Task_bt)
-        #self.menubar.add(arranger_task_bt)
+        # self.menubar.add(arranger_task_bt)
         self.menubar.add(self.show_all_tasks)
         self.tasks_list = Table(headings=['عنوان', 'ارزش', 'وضعیت', "فرصت"],
                                 style=Pack(direction="column"),
@@ -47,7 +47,6 @@ class Zirkonium(App):
         self.calendar = CalendarWidget(self.path, self.mounth_active)
         self.calendar.next_mounth_bt.on_press = self.next_mounth
         self.calendar.prev_mounth_bt.on_press = self.prev_mounth
-        
         try:
             with open(self.path + 'year.json', 'r') as file:
                 json.load(file)
@@ -57,32 +56,32 @@ class Zirkonium(App):
             self.create_and_upload_calendar()
 
     def create_and_upload_calendar(self):
-        print('log: app > upload calendar')
+        print('log: app  > upload calendar')
         self.one_day_win = AddYearWindow()
         self.one_day_win.ok_bt.on_press = self.make_year
         self.windows.add(self.one_day_win)
         self.one_day_win.show()
 
     def set_func_for_cal_bts(self):
-        print('log: app > set func for calendar bts')
+        print('log: app  > set func for calendar bts')
         for bt in self.calendar.box1.children:
-            bt.on_press = self.load_day_tasks
+            bt.on_press = self.load_day
         for bt in self.calendar.box2.children:
-            bt.on_press = self.load_day_tasks
+            bt.on_press = self.load_day
         for bt in self.calendar.box3.children:
-            bt.on_press = self.load_day_tasks
+            bt.on_press = self.load_day
         for bt in self.calendar.box4.children:
-            bt.on_press = self.load_day_tasks
+            bt.on_press = self.load_day
         for bt in self.calendar.box5.children:
-            bt.on_press = self.load_day_tasks
+            bt.on_press = self.load_day
         for bt in self.calendar.box6.children:
-            bt.on_press = self.load_day_tasks
+            bt.on_press = self.load_day
         # clear task table
         for itm in list(self.tasks_list.data):
             self.tasks_list.data.remove(itm)
 
     def make_year(self, widget):
-        print('log: app > make_year')
+        print('log: app  > make_year')
         with open(self.path + 'year.json', 'w') as file:
             json.dump({}, file, indent=3)
         # Determine the first day of the week for the current year
@@ -100,7 +99,7 @@ class Zirkonium(App):
                 with open(self.path + 'bank.json', 'w') as file:
                     json.dump({}, file, indent=3)
                 with open(self.path + 'gilding.json', 'w') as file:
-                    json.dump([], file, indent=3)
+                    json.dump({}, file, indent=3)
             self.one_day_win.close()
             # Assign tasks to calendar buttons
             self.set_func_for_cal_bts()
@@ -108,27 +107,27 @@ class Zirkonium(App):
             self.show()
 
     def next_mounth(self, widget):
-        print('log: calendar.next_mounth')
+        print('log: app  > calendar.next_mounth')
         current_index = self.calendar.active_mounth - 1
         self.calendar.active_mounth = list(self.calendar.mounths_list.keys())[current_index + 1]
         self.calendar.info_lb.text = self.calendar.mounths_list[self.calendar.active_mounth] + '1390'
         self.calendar.add_bts()
         self.set_func_for_cal_bts()
         self.calendar.day_selected = None
-        self.calendar.set_status()
+        self.calendar.set_status_daily()
 
     def prev_mounth(self, widget):
-        print('log: calendar.prev_mounth')
+        print('log: app  > calendar.prev_mounth')
         current_index = self.calendar.active_mounth - 1
         self.calendar.active_mounth = list(self.calendar.mounths_list.keys())[current_index - 1]
         self.calendar.info_lb.text = self.calendar.mounths_list[self.calendar.active_mounth] + '1390'
         self.calendar.add_bts()
         self.set_func_for_cal_bts()
         self.calendar.day_selected = None
-        self.calendar.set_status()
+        self.calendar.set_status_daily()
 
     def show(self):
-        print('log: app > show main_window')
+        print('log: app  > show main_window')
         scr = ScrollContainer(style=Pack(height=500, padding=(5, 5, 5, 5)))
         scr.content = self.tasks_list
         main_box = Box(style=Pack(direction='column', alignment='center', padding=(5, 5, 5, 5)))
@@ -136,26 +135,31 @@ class Zirkonium(App):
         daily_box = Box(style=Pack(direction='column'))
         daily_box.add(self.menubar)
         daily_box.add(scr)
-        #daily_box.add(Label(os.path.realpath(__file__)[:-6]))
+        # daily_box.add(Label(os.path.realpath(__file__)[:-6]))
         gilding_box = Box(style=Pack(direction='column'))
         gilding_scr = ScrollContainer(style=Pack(height=500, padding=(5, 5, 5, 5)))
         gilding_scr.content = self.gilding_list
         gilding_box.add(self.gilding_menubat)
         gilding_box.add(gilding_scr)
-        self.tabs.content.append('روزانه', daily_box)
-        self.tabs.content.append('تذهیب', gilding_box)
+        self.tabs.content.insert(0, 'روزانه', daily_box)
+        self.tabs.content.insert(1, 'تذهیب', gilding_box)
         main_box.add(self.tabs)
         self.main_window = MainWindow(title=self.formal_name)
         self.main_window.content = main_box
         self.main_window.show()
-        self.upload_gilding()
 
-    def load_day_tasks(self, widget):
-        print('log: app > load day tasks by press bt:', widget.text)
+    def load_day(self, widget):
+        print('log: app  > load day tasks by press bt:', widget.text)
         self.add_Task_bt.enabled = True
-        self.calendar.setdate(widget)
+        if self.tabs.current_tab.index == 0:
+            self.calendar.setdate_task(widget)
+        elif self.tabs.current_tab.index == 1:
+            self.calendar.setdate_gilding(widget)
         self.date_active = int(widget.text)
-        self.upload_day(self.date_active)
+        if self.tabs.current_tab.index == 0:
+            self.upload_day_tasks(self.date_active)
+        elif self.tabs.current_tab.index == 1:
+            self.upload_day_acts(self.date_active)
 
     def arranger(self, widget):
         print('log: app > arranger')
@@ -163,7 +167,7 @@ class Zirkonium(App):
             bank = json.load(f)
 
     def add_task(self, widget):
-        print('log: app > add bt')
+        print('log: app  > add task')
         data = self.win.get()
         self.win.close()
         value = data[1] + data[2]
@@ -180,11 +184,11 @@ class Zirkonium(App):
         # save database
         with open(self.path + 'bank.json', 'w') as f:
             json.dump(newbank, f, indent=2)
-        self.upload_day(self.date_active)
-        self.calendar.set_status()
+        self.upload_day_tasks(self.date_active)
+        self.calendar.set_status_daily()
 
     def upload(self, widget):
-        print('log: app > upload all tasks')
+        print('log: app  > upload all tasks')
         self.tasks_list.data.clear()
         with open(self.path + 'bank.json', 'r') as f:
             newbank = json.load(f)
@@ -197,8 +201,8 @@ class Zirkonium(App):
                 deedline = 'امروز'
             self.tasks_list.data.append((cd['taskname'], cd['sub'], cd['statuse'], deedline))
 
-    def upload_day(self, date):
-        print('log: app > upload day', date)
+    def upload_day_tasks(self, date):
+        print('log: app  > upload day tasks', date)
         for itm in list(self.tasks_list.data):
             self.tasks_list.data.remove(itm)
         with open(self.path + 'bank.json', 'r') as f:
@@ -213,19 +217,22 @@ class Zirkonium(App):
                 elif deedline == 0:
                     deedline = 'امروز'
                 self.tasks_list.data.append((selected_itm['taskname'], selected_itm['sub'], selected_itm['statuse'], deedline))
-        self.calendar.set_status()
+        self.calendar.set_status_daily()
 
-    def upload_gilding(self):
-        print('log: app > upload gilding')
-        self.gilding_list.data.clear()
+    def upload_day_acts(self, date):
+        print('log: app  > load day acts')
+        '''upload gilding.json to gilding_list'''
+        for act in list(self.gilding_list.data):
+            self.gilding_list.data.remove(act)
         with open(self.path + 'gilding.json', 'r') as f:
-            newdata = json.load(f)
-        for itm in newdata:
-            self.gilding_list.data.append(itm[0])
+            data = json.load(f)
+        for itm in data:
+            if data[itm][1] == date and data[itm][2] == self.calendar.active_mounth:
+                self.gilding_list.data.append(itm)
 
     def oked_task(self, widget):
         # change task to oked
-        print('log: app > oked_task')
+        print('log: app  > oked_task')
         with open(self.path + 'bank.json', 'r') as f:
             newbank = json.load(f)
         newbank[self.task_name]['statuse'] = 'انجام شده'
@@ -236,15 +243,16 @@ class Zirkonium(App):
 
     def delete_task(self, widget):
         # change task to oked
-        print('log: app > delete_task')
+        print('log: app  > delete_task')
         with open(self.path + 'bank.json', 'r') as f:
             newbank = json.load(f)
         newbank.pop(self.task_name)
         with open(self.path + 'bank.json', 'w') as f:
             json.dump(newbank, f, indent=2)
         self.ok_win.close()
-        self.upload_day(self.date_active)
-        self.calendar.set_status()
+        self.upload_day_tasks(self.date_active)
+        self.calendar.set_status_daily()
+
 
     def cancel_task(self, widget):
         # change task to oked
@@ -282,7 +290,7 @@ class Zirkonium(App):
         self.ok_win.close()
 
     def open_add_task_window(self, widget):
-        print('log: app > open_add_task_window')
+        print('log: app  > open_add_task_window')
         self.date = self.calendar.date
         self.win = AddTaskWindow(self.date)
         self.win.position = (self.main_window.size[0]/2, self.main_window.size[1]/2)
@@ -305,7 +313,7 @@ class Zirkonium(App):
         self.ok_win.show()
 
     def add_forbidden_act_window(self, widget):
-        print('log: app > add_forbidden_act_window')
+        print('log: app  > add_forbidden_act_window')
         self.win_act = Add_Act_Window('forbidden act')
         self.win_act.position = (self.main_window.size[0]/2, self.main_window.size[1]/2)
         self.win_act.ok_bt.on_press = self.add_act
@@ -313,7 +321,7 @@ class Zirkonium(App):
         self.win_act.show()
 
     def add_abominable_act_window(self, widget):
-        print('log: app > add_abominable_act_window')
+        print('log: app  > add_abominable_act_window')
         self.win_act = Add_Act_Window('abominable act')
         self.win_act.position = (self.main_window.size[0]/2, self.main_window.size[1]/2)
         self.win_act.ok_bt.on_press = self.add_act
@@ -321,11 +329,11 @@ class Zirkonium(App):
         self.win_act.show()
 
     def add_act(self, widget):
-        print('log: app > add_forbidden_act')
+        print('log: app  > add_forbidden_act')
         self.win_act.close()
         with open(self.path + 'gilding.json', 'r') as f:
             newdata = json.load(f)
-        newdata.append(self.win_act.get())
+        newdata[self.win_act.get()[0]] = [self.win_act.get()[1],int(self.calendar.day_selected), self.calendar.active_mounth]
         self.gilding_list.data.append(self.win_act.get()[0])
         #self.gilding_list.data[0].style.color = '#c00d0d'
         with open(self.path + 'gilding.json', 'w') as f:
@@ -336,18 +344,29 @@ class Zirkonium(App):
         self.selcted_act = self.gilding_list.selection.title
 
     def delete_act(self, widget):
-        print('log: app > delete_act')
+        print('log: app  > delete_act')
         with open(self.path + 'gilding.json', 'r') as f:
-            newdata = json.load(f)
-        for itm in newdata:
-            print(itm)
-            if itm[0] == self.selcted_act:
+            data = json.load(f)
+        for itm in data:
+            if itm == self.selcted_act:
                 for row in self.gilding_list.data:
                     if row.title == self.selcted_act:
+                        # remove of table
                         self.gilding_list.data.remove(row)
-                newdata.remove(itm)
+                # remove of database
+                data.pop(itm)
+                print(data)
         with open(self.path + 'gilding.json', 'w') as f:
-            json.dump(newdata, f, indent=2)
+            json.dump(data, f, indent=2)
+
+    def select_tab(self, widget):
+        print('log: app  > select tab', widget.current_tab.index)
+        tab_name = widget.current_tab.index
+        if len(widget._content._options) == 2:
+            if tab_name == 1:
+                self.calendar.set_status_daily()
+            elif tab_name == 0:
+                self.calendar.set_status_gilding()
 
 
 def main():
