@@ -347,14 +347,12 @@ class Zirkonium(App):
         print('log: app  > delete_act')
         with open(self.path + 'gilding.json', 'r') as f:
             data = json.load(f)
-        for itm in data:
-            if itm == self.selcted_act:
-                for row in self.gilding_list.data:
-                    if row.title == self.selcted_act:
-                        # remove of table
-                        self.gilding_list.data.remove(row)
-                # remove of database
-                data.pop(itm)
+        for row in self.gilding_list.data:
+            if row.title == self.selcted_act:
+                # remove of table
+                self.gilding_list.data.remove(row)
+            # remove of database
+                data.pop(row.title)
                 print(data)
         with open(self.path + 'gilding.json', 'w') as f:
             json.dump(data, f, indent=2)
