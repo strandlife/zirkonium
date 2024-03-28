@@ -3,11 +3,12 @@ My first application
 """
 import json
 import os
-
+import jdatetime as jd
+import jcalendar
 from toga import (App, Box, MainWindow, Table, Button, Label, OptionContainer, DetailedList, ScrollContainer)
 from toga.style import Pack
 from zirkonium.widgets import CalendarWidget
-from zirkonium.wins import AddTaskWindow, OkTaskWindow, AddYearWindow, Add_Act_Window
+from zirkonium.wins import AddTaskWindow, OkTaskWindow, Add_Act_Window
 
 
 class Zirkonium(App):
@@ -50,17 +51,20 @@ class Zirkonium(App):
         try:
             with open(self.path + 'year.json', 'r') as file:
                 json.load(file)
-            self.set_func_for_cal_bts()
-            self.show()
         except FileNotFoundError:
             self.create_and_upload_calendar()
+        finally:
+            self.set_func_for_cal_bts()
+            self.show()
 
     def create_and_upload_calendar(self):
         print('log: app  > upload calendar')
-        self.one_day_win = AddYearWindow()
-        self.one_day_win.ok_bt.on_press = self.make_year
-        self.windows.add(self.one_day_win)
-        self.one_day_win.show()
+        start_day = jd.date(1403, 1, 1).weekday()
+        week = {1:'شنبه',2:"یکشنبه",3:"دوشنبه",4:"سه شنبه",5:"چهارشنبه",6:"پنجشنبه",7:"جمعه"}
+        day_name = ''
+        day_name = week[int(start_day)]
+        print(day_name)
+        self.make_year(start_day)
 
     def set_func_for_cal_bts(self):
         print('log: app  > set func for calendar bts')
@@ -80,12 +84,12 @@ class Zirkonium(App):
         for itm in list(self.tasks_list.data):
             self.tasks_list.data.remove(itm)
 
-    def make_year(self, widget):
+    def make_year(self,one_day=None, widget=None):
         print('log: app  > make_year')
         with open(self.path + 'year.json', 'w') as file:
             json.dump({}, file, indent=3)
         # Determine the first day of the week for the current year
-        self.calendar.set_one_day(self.one_day_win.set_one_day())
+        self.calendar.set_one_day(one_day)
         # Building the current year database
         self.calendar.make_year()
         # Add calendar days buttons for a year
@@ -100,11 +104,6 @@ class Zirkonium(App):
                     json.dump({}, file, indent=3)
                 with open(self.path + 'gilding.json', 'w') as file:
                     json.dump({}, file, indent=3)
-            self.one_day_win.close()
-            # Assign tasks to calendar buttons
-            self.set_func_for_cal_bts()
-            # Display the main window of the program
-            self.show()
 
     def next_mounth(self, widget):
         print('log: app  > calendar.next_mounth')
