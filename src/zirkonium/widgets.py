@@ -281,6 +281,8 @@ class CalendarWidget(Box):
                     # Color assignment buttons
                     if int(bt.text) in range(1, 32):
                         bt.style.background_color = '#ffffff'  # white
+                    if int(bt.text) > self.today_date_day:
+                        bt.enabled = False
         # today_day
 
     def setdate_task(self, widget):
