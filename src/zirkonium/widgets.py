@@ -1,7 +1,6 @@
 import json
 import os
 import jdatetime
-from zirkonium.wins import AddYearWindow
 
 from toga import (Box, Window, Button, TextInput, ScrollContainer,
         Label, NumberInput, Switch, ScrollContainer, DetailedList)
@@ -198,7 +197,6 @@ class CalendarWidget(Box):
                 numbering += 1
             if int(bt.text) == int(self.today_date_day) and self.today_month == self.active_mounth:
                 bt.style.background_color = '#80b4f9'
-        
         if self.active_mounth == 12:
             self.next_mounth_bt.enabled = False
             self.prev_mounth_bt.enabled = True
