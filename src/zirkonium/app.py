@@ -342,15 +342,15 @@ class Zirkonium(App):
         self.win_act.close()
         with open(self.path + 'gilding.json', 'r') as f:
             newdata = json.load(f)
-        newdata[self.win_act.get()[0]] = [self.win_act.get()[1],int(self.calendar.day_selected), self.calendar.active_month]
-        self.gilding_list.data.append(self.win_act.get()[0])
+        newdata[self.win_act.get()[0]] = [self.win_act.get()[1], self.win_act.get()[2], int(self.calendar.day_selected), self.calendar.active_month]
+        self.gilding_list.data.append([self.win_act.get()[0], self.win_act.get()[1]])
         #self.gilding_list.data[0].style.color = '#c00d0d'
         with open(self.path + 'gilding.json', 'w') as f:
             json.dump(newdata, f, indent=2)
 
     def select_act(self, widget):
-        print('select act')
-        if len(self.gilding_list.data) > 0:
+        print('log: app  > select act')
+        if self.gilding_list.selection != None:
             self.del_act_bt.enabled = True
             self.selcted_act = self.gilding_list.selection.title
 
