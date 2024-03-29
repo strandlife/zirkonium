@@ -18,6 +18,7 @@ sources = ["src/zirkonium",]
 test_sources = ["tests",]
 
 requires = [
+    "jdatetime~=4.1.0"
 ]
 test_requires = ["pytest",]
 

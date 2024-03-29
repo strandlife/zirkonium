@@ -1,4 +1,4 @@
-from toga import (Box, Window, Button, TextInput, NumberInput,Switch,
+from toga import (Box, Window, Button, TextInput, MultilineTextInput, NumberInput, Divider,
         Selection, Switch, Label, DetailedList)
 from toga.style import Pack
 
@@ -15,7 +15,7 @@ class AddTaskWindow(Window):
         self.title = "افزودن وظیفه جدید"
         self.size = (250, 170)
         self.box = Box(style=Pack(padding=(10, 10, 10, 10), direction='column'))
-        self.task_name_te = TextInput(style=Pack())
+        self.task_name_te = TextInput(placeholder='عنوان وظیفه را وارد کنید', style=Pack())
         self.importancs_sw = Switch('اهمیت', style=Pack())
         self.urgency_sw = Switch('فوریت', style=Pack())
         self.date_sp = NumberInput()
@@ -25,7 +25,7 @@ class AddTaskWindow(Window):
         self.box.add(self.task_name_te)
         self.box.add(self.urgency_sw)
         self.box.add(self.importancs_sw)
-        self.box.add(self.date_sp)
+        self.box.add(Box(children=[self.date_sp, Label("تاریخ", style=Pack(width=100))]))
         self.box.add(self.ok_bt)
         self.content = self.box
 
@@ -59,12 +59,12 @@ class OkTaskWindow(Window):
         self.size = (250, 180)
         self.box = Box(style=Pack(padding=(10, 10, 10, 10), direction='column'))
         self.title_label = Label('روز ' + str(day_number), style=Pack(text_align='center'))
-        self.cancel_bt = Button('لغو', style=Pack(padding=(10, 10, 10, 10)))
-        self.oked_bt = Button('انجام شده', style=Pack(padding=(10, 10, 10, 10)))
-        self.delete_bt = Button('حذف', style=Pack(padding=(10, 10, 10, 10)))
+        self.cancel_bt = Button('لغو', style=Pack(width=70, padding=(10, 10, 10, 10)))
+        self.oked_bt = Button('انجام شده', style=Pack(width=70, padding=(10, 10, 10, 10)))
+        self.delete_bt = Button('حذف', style=Pack(width=70, padding=(10, 10, 10, 10)))
         self.transfer_bt = Button('انتقال به روز:', style=Pack(padding=(10, 10, 10, 2)))
         self.month_select = NumberInput(min=1, max=12, style=Pack(padding=(10, 10, 10, 10)))
-        self.day_select = NumberInput(value=1, style=Pack(padding=(10, 2, 10, 2)))
+        self.day_select = NumberInput(value=1, style=Pack(padding=(10, 10, 10, 10)))
         self.day_select.min_value = 1
         if active_month < 7 and day_number == 30:
             day_number = 1
@@ -79,9 +79,8 @@ class OkTaskWindow(Window):
 
         self.close_bt = Button('بستن پنجره', style=Pack(background_color='#fbc855', padding=(10, 10, 10, 10)))
         self.box.add(self.title_label)
-        self.box.add(self.oked_bt)
-        self.box.add(self.cancel_bt)
-        self.box.add(self.delete_bt)
+        self.box.add(Box(children=[self.oked_bt, self.cancel_bt, self.delete_bt]))
+        self.box.add(Divider())
         self.box.add(Box(children=[Label('روز:'), self.day_select]))
         self.box.add(Box(children=[Label('ماه:'), self.month_select]))
         self.box.add(self.transfer_bt)
@@ -96,9 +95,9 @@ class OkTaskWindow(Window):
         return True
 
 
-class AddYearWindow(Window):
-    def __init__(self):
-        super(AddYearWindow, self).__init__()
+class Add_Act_Window(Window):
+    def __init__(self, act_type):
+        super(Add_Act_Window, self).__init__()
         """
         A window to specify the result of a task
         """
@@ -106,22 +105,16 @@ class AddYearWindow(Window):
         self.title = "add year Window"
         self.size = (250, 180)
         self.box = Box(style=Pack(padding=(10, 10, 10, 10), direction='column'))
-        start_day_lb = Label('روز اول سال')
-        self.start_day_se = Selection(items=['شنبه', 'یکشنبه', 'دوشنبه',
-                                            'سه شنبه', 'چهارشنبه', 'پنج شنبه', 'جمعه'],
-                                            on_select=self.set_one_day)
+        self.title_in = MultilineTextInput(placeholder='عنوان فعالیت را وارد کنید', style=Pack())
+        self.act_type = act_type
         self.ok_bt = Button('تایید', style=Pack(padding=(10, 10, 10, 10)))
-        self.box.add(start_day_lb, self.start_day_se, self.ok_bt)
+        self.box.add(self.title_in)
+        self.box.add(self.ok_bt)
         self.content = self.box
 
-    def set_one_day(self):
-        print('calendar_win')
-        self.week_days = {1:'شنبه', 2:'یکشنبه', 3:'دوشنبه',
-                        4:'سه شنبه', 5:'چهارشنبه', 6:'پنج شنبه', 7:'جمعه'}
-        for num_mnt in self.week_days:
-            if self.start_day_se.value == self.week_days[num_mnt]:
-                return num_mnt
-    
+    def get(self):
+        return [self.title_in.value, self.act_type]
+
     def close_handler(self, window, **kwargs):
         print('close OkTaskWindow')
         return True
