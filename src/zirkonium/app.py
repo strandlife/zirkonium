@@ -235,9 +235,9 @@ class Zirkonium(App):
             self.gilding_list.data.remove(act)
         with open(self.path + 'gilding.json', 'r') as f:
             data = json.load(f)
-        for itm in data:
-            if data[itm][1] == date and data[itm][2] == self.calendar.active_month:
-                self.gilding_list.data.append(itm)
+        for act in data:
+            if data[act][2] == date and data[act][3] == self.calendar.active_month:
+                self.gilding_list.data.append([act, data[act][0]])
 
     def oked_task(self, widget):
         # change task to oked
