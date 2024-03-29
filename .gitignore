@@ -154,3 +154,5 @@ cython_debug/
 src/zirkonium/bank.json
 
 src/zirkonium/year.json
+
+src/zirkonium/gilding.json
