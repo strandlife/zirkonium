@@ -3,8 +3,9 @@ My first application
 """
 import json
 import os
-
-from toga import (App, Box, MainWindow, Table, Button, Label, ScrollContainer)
+import jdatetime as jd
+import jcalendar
+from toga import (App, Box, MainWindow, Table, Button, Label, OptionContainer, DetailedList, ScrollContainer)
 from toga.style import Pack
 from zirkonium.widgets import CalendarWidget
 from zirkonium.wins import AddTaskWindow, OkTaskWindow, AddYearWindow
@@ -18,8 +19,10 @@ class Zirkonium(App):
         """
         self.path = os.path.realpath(__file__)[:-6]
         self.date_active = None
-        self.mounth_active = None
-        
+        self.month_active = 1
+        self.tabs = OptionContainer()
+        self.status = 'dialy'
+        # daily
         self.add_Task_bt = Button('افزودن', style=Pack(padding=(0, 5, 0, 5)), on_press=self.open_add_task_window)
         self.add_Task_bt.enabled = False
         self.show_all_tasks = Button('نمایش همه', on_press=self.upload)

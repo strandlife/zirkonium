@@ -54,7 +54,7 @@ class OkTaskWindow(Window):
         A window to specify the result of a task
         """
         self.on_close = self.close_handler
-        self.title = "Ok Task Window"
+        self.title = "تایین وضعیت"
         self.active_month = active_month
         self.size = (250, 180)
         self.box = Box(style=Pack(padding=(10, 10, 10, 10), direction='column'))
