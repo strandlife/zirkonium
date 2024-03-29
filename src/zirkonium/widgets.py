@@ -258,22 +258,28 @@ class CalendarWidget(Box):
 
     def set_status_gilding(self):
         print('log: wins > CalendarWidget.set_status_gilding')
-        with open(self.path + 'gilding.json', 'r') as file:
-            data = json.load(file)
+        try:
+            with open(self.path + 'gilding.json', 'r') as file:
+                data = json.load(file)
+        except FileNotFoundError:
+            with open(self.path + 'gilding.json', 'w') as file:
+                json.dump({}, file, indent=3)
+            with open(self.path + 'gilding.json', 'r') as file:
+                data = json.load(file)
         # get days have act
-        days = [data[day][1] for day in data]
+        days = [data[act][2] for act in data]
         days = list(set(days))
         if len(data) > 0:
-            for itm in data:
+            for act in data:
                 for child in list(self.main_box.children):
                     for bt in child.children:
                         # days_passed
-                        if int(bt.text) in days and data[itm][2] == self.active_month:
+                        if int(bt.text) in days and data[act][3] == self.active_month:
                             bt.style.background_color = '#f0a702'  # orange
                         # future and passed day
                         if int(bt.text) not in days:
                             bt.style.background_color = '#ffffff'  # white
-                        if int(bt.text) > self.today_date_day and data[itm][2] == self.active_month:
+                        if int(bt.text) > self.today_date_day and data[act][3] == self.active_month:
                             bt.enabled = False
                         if self.active_month != self.today_month:
                             bt.enabled = False
