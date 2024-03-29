@@ -21,7 +21,7 @@ class Zirkonium(App):
         self.date_active = None
         self.month_active = 1
         self.tabs = OptionContainer()
-        self.status = 'dialy'
+        self.status = 'daily'
         # daily
         self.add_Task_bt = Button('افزودن', style=Pack(padding=(0, 5, 0, 5)), on_press=self.open_add_task_window)
         self.add_Task_bt.enabled = False
