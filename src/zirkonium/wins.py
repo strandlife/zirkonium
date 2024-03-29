@@ -105,15 +105,17 @@ class Add_Act_Window(Window):
         self.title = "add year Window"
         self.size = (250, 180)
         self.box = Box(style=Pack(padding=(10, 10, 10, 10), direction='column'))
-        self.title_in = MultilineTextInput(placeholder='عنوان فعالیت را وارد کنید', style=Pack())
+        self.title_in = TextInput(placeholder='عنوان فعالیت را وارد کنید')
+        self.subtitle_in = MultilineTextInput(placeholder='توضیحات فعالیت را وارد کنید', style=Pack(padding_top=5))
         self.act_type = act_type
         self.ok_bt = Button('تایید', style=Pack(padding=(10, 10, 10, 10)))
         self.box.add(self.title_in)
+        self.box.add(self.subtitle_in)
         self.box.add(self.ok_bt)
         self.content = self.box
 
     def get(self):
-        return [self.title_in.value, self.act_type]
+        return [self.title_in.value, self.subtitle_in.value, self.act_type]
 
     def close_handler(self, window, **kwargs):
         print('close OkTaskWindow')
