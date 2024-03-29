@@ -4,7 +4,6 @@ My first application
 import json
 import os
 import jdatetime as jd
-import jcalendar
 from toga import (App, Box, MainWindow, Table, Button, Label, OptionContainer, DetailedList, ScrollContainer)
 from toga.style import Pack
 from zirkonium.widgets import CalendarWidget
