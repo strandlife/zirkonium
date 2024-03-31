@@ -283,6 +283,10 @@ class CalendarWidget(Box):
                             bt.enabled = False
                         if self.active_month != self.today_month:
                             bt.enabled = False
+                        if int(bt.text) == 31 and self.active_month is [1,2,3,4,5.6]:
+                            self.next_month_bt.enabled = False
+                        if int(bt.text) == 30 and self.active_month is [7,8,9,10,11,12]:
+                            self.next_month_bt.enabled = False
         elif len(data) == 0:
             for child in list(self.main_box.children):
                 for bt in child.children:
@@ -291,6 +295,10 @@ class CalendarWidget(Box):
                         bt.style.background_color = '#ffffff'  # white
                     if int(bt.text) > self.today_date_day:
                         bt.enabled = False
+                    if int(bt.text) == 31 and self.active_month is [1,2,3,4,5.6]:
+                        self.next_month_bt.enabled = False
+                    if int(bt.text) == 30 and self.active_month is [7,8,9,10,11,12]:
+                        self.next_month_bt.enabled = False
         # today_day
 
     def setdate_task(self, widget):
