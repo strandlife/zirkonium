@@ -8,12 +8,11 @@ class AddTaskWindow(Window):
         """
         a window for get new task data from user
         """
-        super(AddTaskWindow, self).__init__()
+        super(AddTaskWindow, self).__init__(resizable=False, size=(250, 170))
         print('date:',date)
         self.date = date
         self.on_close = self.close_handler
         self.title = "افزودن وظیفه جدید"
-        self.size = (250, 170)
         self.box = Box(style=Pack(padding=(10, 10, 10, 10), direction='column'))
         self.task_name_te = TextInput(placeholder='عنوان وظیفه را وارد کنید', style=Pack())
         self.importancs_sw = Switch('اهمیت', style=Pack())
@@ -49,14 +48,13 @@ class AddTaskWindow(Window):
 
 class OkTaskWindow(Window):
     def __init__(self, day_number, active_month):
-        super(OkTaskWindow, self).__init__()
+        super(OkTaskWindow, self).__init__(resizable=False, size=(250, 180))
         """
         A window to specify the result of a task
         """
         self.on_close = self.close_handler
         self.title = "تایین وضعیت"
         self.active_month = active_month
-        self.size = (250, 180)
         self.box = Box(style=Pack(padding=(10, 10, 10, 10), direction='column'))
         self.title_label = Label('روز ' + str(day_number), style=Pack(text_align='center'))
         self.cancel_bt = Button('لغو', style=Pack(width=70, padding=(10, 10, 10, 10)))
@@ -97,13 +95,12 @@ class OkTaskWindow(Window):
 
 class Add_Act_Window(Window):
     def __init__(self, act_type):
-        super(Add_Act_Window, self).__init__()
+        super(Add_Act_Window, self).__init__(resizable=False, size=(250, 200))
         """
         A window to specify the result of a task
         """
         self.on_close = self.close_handler
-        self.title = "add year Window"
-        self.size = (250, 180)
+        self.title = "افزودن یک عمل"
         self.box = Box(style=Pack(padding=(10, 10, 10, 10), direction='column'))
         self.title_in = TextInput(placeholder='عنوان فعالیت را وارد کنید')
         self.subtitle_in = MultilineTextInput(placeholder='توضیحات فعالیت را وارد کنید', style=Pack(padding_top=5))
