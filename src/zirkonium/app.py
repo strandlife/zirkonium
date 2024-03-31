@@ -37,8 +37,8 @@ class Zirkonium(App):
         self.tasks_list._on_activate = self.open_oked_window
         # gilding
         self.gilding_list = DetailedList(on_select=self.select_act)
-        self.add_forbidden_act_bt = Button('حرام', on_press=self.add_forbidden_act_window)
-        self.add_abominable_act_bt = Button('مکروه', on_press=self.add_abominable_act_window)
+        self.add_forbidden_act_bt = Button('حرام', on_press=self.add_forbidden_act_window, enabled=False)
+        self.add_abominable_act_bt = Button('مکروه', on_press=self.add_abominable_act_window, enabled=False)
         self.del_act_bt = Button('حذف', on_press=self.delete_act)
         self.del_act_bt.enabled = False
         self.gilding_menubat = Box()
@@ -167,6 +167,8 @@ class Zirkonium(App):
             self.upload_day_tasks(self.date_active)
         elif self.status == 'gilding':
             self.upload_day_acts(self.date_active)
+            self.add_abominable_act_bt.enabled = True
+            self.add_forbidden_act_bt.enabled = True
 
     def arranger(self, widget):
         print('log: app > arranger')
@@ -279,13 +281,11 @@ class Zirkonium(App):
             newbank = json.load(f)
         todey_day_name = ''
         for day_name in newbank:
-            print('day=',day_name)
             if newbank[day_name]['day'] == self.ok_win.get()[0]:
                 todey_day_name = day_name
                 todey_day = newbank[day_name]
         newbank.pop(todey_day_name)
         new_day = self.ok_win.get()
-        print(new_day)
         newbank[todey_day['taskname']] = {'taskname':todey_day['taskname'], 'sub':todey_day['sub'],
                                     'month':new_day[2], 'day':new_day[1], 'statuse':'انتظار'}
         # save to database
@@ -364,7 +364,6 @@ class Zirkonium(App):
                 self.gilding_list.data.remove(row)
             # remove of database
                 data.pop(row.title)
-                print(data)
         with open(self.path + 'gilding.json', 'w') as f:
             json.dump(data, f, indent=2)
 
@@ -375,9 +374,11 @@ class Zirkonium(App):
             if tab_name == 1:
                 self.status = 'daily'
                 self.calendar.set_status_daily()
+                self.calendar.next_month_bt.enabled = True
             elif tab_name == 0:
                 self.status = 'gilding'
                 self.calendar.set_status_gilding()
+                self.calendar.next_month_bt.enabled = False
 
 
 def main():
